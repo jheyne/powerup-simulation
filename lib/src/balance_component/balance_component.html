@@ -1,0 +1,9 @@
+<div id="balance">
+    <div id="left" [ngClass]="classMap(true)" (click)="clickLeftPlate($event)">
+        <div class="centerText">{{balance.leftCubeCount}}</div>
+    </div>
+    <div id="flexy"></div>
+    <div id="right" [ngClass]="classMap(false)" (click)="clickRightPlate($event)">
+        <div class="centerText">{{balance.rightCubeCount}}</div>
+    </div>
+</div>

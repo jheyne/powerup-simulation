@@ -1,0 +1,153 @@
+@import "../../../web/variables";
+
+%border {
+  position: absolute;
+  border-width: 1px;
+  border-style: solid;
+  text-align: center;
+}
+
+#field {
+  @extend %border;
+  width: $scaled-field-width;
+  height: $scaled-field-depth;
+  border-width: 2px;
+  background-color: rgba(240,240,240,0.67);
+}
+
+%balance-pad {
+  @extend %border;
+  width: $switch-fence-width;
+  height: $switch-fence-depth;
+  display: flex;
+}
+
+.centerText {
+  width: 14px;
+  margin: auto auto;
+}
+
+%portal {
+  @extend %border;
+  width: $portal-width;
+  height: $portal-depth;
+  background-color: yellow;
+  border-style: dashed;
+  line-height: 3;
+}
+
+%source {
+  @extend %border;
+  background-color: yellow;
+  width: 33.3%;
+  position: absolute;
+}
+
+#portal-red-left {
+  @extend %portal;
+  top: 0;
+  left: 0;
+  border-bottom-right-radius: $portal-radius;
+}
+
+#portal-red-right {
+  @extend %portal;
+  top: 0;
+  left: calc(#{$scaled-field-width} - #{$portal-width} - 1px);
+  border-bottom-left-radius: $portal-radius;
+}
+
+#blue-10-source {
+  @extend %source;
+  height: $cube-10-source-height;
+  width: $cube-10-source-width;
+  top: $switch-to-station - $cube-10-source-height - 0.1%;
+  left: 50% - $cube-10-source-width / 2;
+  position: absolute;
+  display: flex;
+}
+
+#top-switch {
+  position: absolute;
+  top: $switch-to-station;
+  left: $switch-to-wall;
+  width: $switch-width;
+  height: $switch-fence-depth;
+}
+
+#blue-6-source {
+  @extend %source;
+  height: $cube-6-source-height;
+  top: $switch-to-station + $switch-fence-depth;
+  left: $switch-to-wall;
+  width: $switch-width;
+}
+
+#scale {
+  position: absolute;
+  top: $scale-to-station;
+  left: $scale-to-wall;
+  width: $scale-total-width;
+  height: $switch-fence-depth;
+}
+
+#red-6-source {
+  @extend %source;
+  height: $cube-6-source-height;
+  top: 100% - ($switch-to-station + $switch-fence-depth + $cube-6-source-height + 0.3%);
+  left: $switch-to-wall;
+  width: $switch-width;
+}
+
+#bottom-switch {
+  position: absolute;
+  top: calc(100% - (#{$switch-to-station} + #{$switch-fence-depth}));
+  left: $switch-to-wall;
+  width: $switch-width;
+  height: $switch-fence-depth;
+}
+
+#red-10-source {
+  @extend %source;
+  height: $cube-10-source-height;
+  width: $cube-10-source-width;
+  top: 100% - $switch-to-station + 0.1%;
+  left: 50% - $cube-10-source-width / 2;
+  position: absolute;
+  display: flex;
+}
+
+#portal-blue-left {
+  @extend %portal;
+  top: calc(#{$scaled-field-depth} - #{$portal-depth} - 1px);
+  left: calc(#{$scaled-field-width} - #{$portal-width} - 1px);
+  border-top-left-radius: $portal-radius;
+}
+
+#portal-blue-right {
+  @extend %portal;
+  top: calc(#{$scaled-field-depth} - #{$portal-depth} - 1px);
+  left: 0;
+  border-top-right-radius: $portal-radius;
+}
+
+.redTeam {
+  background-color: red;
+  font-weight: bold;
+}
+
+.blueTeam {
+  background-color: blue;
+  font-weight: bold;
+}
+
+.active-cube-source {
+  border-color: darkorchid;
+  cursor: crosshair;
+}
+
+.robot {
+  position: absolute;
+  z-index: 100;
+}
+

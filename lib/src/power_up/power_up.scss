@@ -1,0 +1,40 @@
+#all {
+  display: grid;
+  grid-auto-columns: 1fr 1fr;
+  justify-content: center;
+}
+
+#left {
+  position: relative;
+  grid-column-start: 1;
+  vertical-align: top;
+  margin-right: 1em;
+}
+
+#right {
+  position: relative;
+  grid-column-start: 2;
+  vertical-align: top;
+  margin-left: 1em;
+}
+
+.get-cube {
+  background-color: yellow;
+}
+.place-robot {
+  background-color: orange;
+  color: white;
+}
+
+.start {
+  background-color: green;
+  color: white;
+}
+
+button-space {
+  height: 20px;
+}
+
+material-button {
+  max-width: 300px;
+}

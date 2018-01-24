@@ -1,0 +1,41 @@
+<div id="field">
+    <div id="portal-red-right" (click)="robot.getCubeX(robot.alliance.portalRight, $event)">
+        {{robot.alliance.portalRight.count}}
+    </div>
+    <div id="portal-red-left" (click)="robot.getCubeX(robot.alliance.portalLeft, $event)">
+        {{robot.alliance.portalLeft.count}}
+    </div>
+
+    <div id="blue-10-source" (click)="robot.getCubeX(robot.alliance.oppositeAlliance.allianceSource, $event)">
+        <div class="centerText">{{robot.alliance.oppositeAlliance.allianceSource.count}}</div>
+    </div>
+
+    <balance-component #topSwitch id="top-switch" [robot]="robot" [balance]="robot.alliance.switch_"
+                       ></balance-component>
+
+    <div id="blue-6-source" (click)="robot.getCubeX(robot.alliance.oppositeAlliance.switchSource, $event)">
+        {{robot.alliance.oppositeAlliance.switchSource.count}}
+    </div>
+
+    <balance-component #midScale id="scale" [robot]="robot" [balance]="robot.alliance.match.scale"
+                       [isSwitch]="false" ></balance-component>
+
+    <div id="red-6-source" (click)="robot.getCubeX(robot.alliance.switchSource, $event)">
+        {{robot.alliance.switchSource.count}}
+    </div>
+
+    <balance-component #bottomSwitch id="bottom-switch" [robot]="robot" [balance]="robot.alliance.oppositeAlliance.switch_"
+                       ></balance-component>
+
+    <div id="red-10-source" (click)="robot.getCubeX(robot.alliance.allianceSource, $event)">
+        <div class="centerText">{{robot.alliance.allianceSource.count}}</div>
+    </div>
+
+    <div id="portal-blue-right" (click)="robot.getCubeX(robot.alliance.oppositeAlliance.portalRight, $event)">
+        {{robot.alliance.oppositeAlliance.portalRight.count}}
+    </div>
+    <div id="portal-blue-left" (click)="robot.getCubeX(robot.alliance.oppositeAlliance.portalLeft, $event)">
+        {{robot.alliance.oppositeAlliance.portalLeft.count}}
+    </div>
+
+</div>

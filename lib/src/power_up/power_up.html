@@ -1,0 +1,56 @@
+<div id="all">
+    <div id="left">
+        <field-diagram [match]="match" [field]="field" [robot]="robot">
+
+        </field-diagram>
+    </div>
+    <div id="right">
+        <h1>Power Up -- {{state}}</h1>
+
+        <div class="score">
+            <div class="redScore">
+                Red Score: {{match.red.tally.matchPoints}}
+            </div>
+            <div class="blueScore">
+                Blue Score: {{match.blue.tally.matchPoints}}
+            </div>
+        </div>
+
+        <div class="list" *ngIf="match.isInit">
+            <div class="list" *ngIf="!robot.hasPowerCube">
+                <button-space></button-space>
+                <material-button class="get-cube" raised clear-size (trigger)="robot.getCube(robot.alliance.portalLeft, true)">Get cube from left portal
+                </material-button>
+                <button-space></button-space>
+                <material-button class="get-cube" raised clear-size (trigger)="robot.getCube(robot.alliance.portalRight, true)">Get cube from right portal
+                </material-button>
+            </div>
+            <div class="list">
+                <button-space></button-space>
+                <material-button class="place-robot" raised clear-size >Start at left
+                </material-button>
+                <button-space></button-space>
+                <material-button class="place-robot" raised clear-size >Start at center
+                </material-button>
+                <button-space></button-space>
+                <material-button class="place-robot" raised clear-size >Start at right
+                </material-button>
+                <button-space></button-space>
+            </div>
+            <material-button class="start" raised clear-size (trigger)="match.startAutonomous()">START</material-button>
+        </div>
+
+        <div *ngIf="match.isAuton">
+            <material-button *ngIf="!robot.hasCrossedLine" (trigger)="robot.crossLine()">Cross line</material-button>
+            <cube-operations [robot]="robot"></cube-operations>
+        </div>
+
+        <div *ngIf="match.isTeleop">
+            <cube-operations [robot]="robot"></cube-operations>
+        </div>
+
+        <div class="list" *ngIf="match.isDone">
+            <material-button (trigger)="newMatch()">New match</material-button>
+        </div>
+    </div>
+</div>

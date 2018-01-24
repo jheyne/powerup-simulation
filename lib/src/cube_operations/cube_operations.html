@@ -1,0 +1,54 @@
+<div class="list" *ngIf="!robot.hasPowerCube">
+    <h3>Get power cube from...</h3>
+    <material-button (click)="robot.getCube(robot.alliance.portalLeft)" *ngIf="robot.alliance.portalLeft.count>0">
+        <material-icon icon="format_indent_increase"></material-icon>
+        <span class="buttonLabel">Left portal </span>
+        <span class="count"> {{robot.alliance.portalLeft.count}}</span>
+    </material-button>
+    <material-button (click)="robot.getCube(robot.alliance.portalRight)" *ngIf="robot.alliance.portalRight.count>0">
+        <material-icon icon="format_indent_increase"></material-icon>
+        <span class="buttonLabel">Right portal </span>
+        <span class="count"> {{robot.alliance.portalRight.count}}</span>
+    </material-button>
+    <material-button (click)="robot.getCube(robot.alliance.allianceSource)" *ngIf="robot.alliance.allianceSource.count>0">
+        <material-icon icon="format_indent_increase"></material-icon>
+        <span class="buttonLabel">Your stack of 10</span>
+        <span class="count"> {{robot.alliance.allianceSource.count}}</span>
+    </material-button>
+    <material-button (click)="robot.getCube(robot.alliance.switchSource)" *ngIf="robot.alliance.switchSource.count>0">
+        <material-icon icon="format_indent_increase"></material-icon>
+        <span class="buttonLabel">Your row of 6</span>
+        <span class="count"> {{robot.alliance.switchSource.count}}</span>
+    </material-button>
+    <material-button (click)="robot.getCube(robot.alliance.oppositeAlliance.switchSource)" *ngIf="robot.alliance.oppositeAlliance.switchSource.count>0">
+        <material-icon icon="format_indent_increase"></material-icon>
+        <span class="buttonLabel">The opposition's row of 6</span>
+        <span class="count"> {{robot.alliance.oppositeAlliance.switchSource.count}}</span>
+    </material-button>
+</div>
+<div class="list" *ngIf="robot.hasPowerCube">
+    <h3>Place power cube in...</h3>
+    <material-button (click)="robot.putCube(robot.alliance.switch_)">
+        <material-icon icon="format_indent_decrease"></material-icon>
+        <span class="buttonLabel">Your switch</span>
+        <span class="count red"> {{robot.alliance.switch_.redCubes}}</span>
+        <span class="count blue"> {{robot.alliance.switch_.blueCubes}}</span>
+    </material-button>
+    <material-button (click)="robot.putCube(robot.alliance.oppositeAlliance.switch_)">
+        <material-icon icon="format_indent_decrease"></material-icon>
+        <span class="buttonLabel">Opposition's switch</span>
+        <span class="count red"> {{robot.alliance.oppositeAlliance.switch_.redCubes}}</span>
+        <span class="count blue"> {{robot.alliance.oppositeAlliance.switch_.blueCubes}}</span>
+    </material-button>
+    <material-button (click)="robot.putCube(robot.alliance.match.scale)">
+        <material-icon icon="format_indent_decrease"></material-icon>
+        <span class="buttonLabel">Scale</span>
+        <span class="count red"> {{robot.alliance.match.scale.redCubes}}</span>
+        <span class="count blue"> {{robot.alliance.match.scale.blueCubes}}</span>
+    </material-button>
+    <material-button (click)="robot.putCube(robot.alliance.vault)">
+        <material-icon icon="format_indent_decrease"></material-icon>
+        <span class="buttonLabel">Vault</span>
+        <span class="count"> {{robot.alliance.vault.count}}</span>
+    </material-button>
+</div>
