@@ -15,9 +15,8 @@ class Alliance {
 
   PowerCubeSource portalLeft = new PowerCubeSource(7, 'portal-red-left');
   PowerCubeSource portalRight = new PowerCubeSource(7, 'portal-red-right');
-  PowerCubeSource switchSource = new PowerCubeSource(6, 'switch-red-right');
-  PowerCubeSource allianceSource =
-      new PowerCubeSource(10, 'alliance-red-right');
+  PowerCubeSource switchSource = new PowerCubeSource(6, 'red-6-source');
+  PowerCubeSource allianceSource = new PowerCubeSource(10, 'red-10-source');
 
   Balance switch_;
   Vault vault;
@@ -29,10 +28,17 @@ class Alliance {
   bool get isBlue => color == Color.BLUE;
 
   Alliance(this.color, this.match) {
-    vault = new Vault(this);
+    vault = new Vault(this, color == Color.RED ? 'red-vault' : 'blue-vault');
     switch_ = new Balance(
-        match, (Alliance ally) => ally.vault.boost.isActiveForSwitch);
-//    print('Creating alliance');
+        match,
+        (Alliance ally) => ally.vault.boost.isActiveForSwitch,
+        color == Color.RED ? 'bottom_switch' : 'top-switch');
+    if (color == Color.BLUE) {
+      portalLeft._id = 'portal-blue-left';
+      portalRight._id = 'portal-blue-right';
+      switchSource._id = 'blue-6-source';
+      allianceSource._id = 'blue-10-source';
+    }
   }
 
   startAutonomous() {}
@@ -49,8 +55,8 @@ class Match {
   Match() {
     red = new Alliance(Color.RED, this);
     blue = new Alliance(Color.BLUE, this);
-    scale = new Balance(
-        this, (Alliance alliance) => alliance.vault.boost.isActiveForScale);
+    scale = new Balance(this,
+        (Alliance alliance) => alliance.vault.boost.isActiveForScale, "scale");
   }
 
   bool get isAuton => state == State.AUTON;
@@ -90,11 +96,25 @@ typedef bool PointMultiplier(Alliance alliance);
 
 Random randomInstance = new Random();
 
-class BalancePlate {
+class BalancePlate extends PowerCubeTarget {
+  List<String> id(Robot robot) {
+    List<String> list = [
+      balance.id(robot).first
+    ];
+    if(robot.isRed) {
+      list.add(balance.redPlate == balance.rightPlate ? "right" : "left");
+    } else {
+      list.add(balance.bluePlate == balance.rightPlate ? "right" : "left");
+    }
+    return list;
+  }
+
   int cubeCount = 0;
   final Balance balance;
   final Match match;
   Alliance _alliance;
+
+  int get pointMargin => cubeCount - otherPlate.cubeCount;
 
   void set alliance(Alliance a) {
 //    if (!(isRed && a.isRed)) {
@@ -124,17 +144,28 @@ class BalancePlate {
 
   BalancePlate(this.balance, this.match);
 
-  putCube(Robot robot, MouseEvent event, String sideClicked) {
-    print(
-        'clicked $sideClicked putCube in plate $color for alliance ${robot.alliance.color}');
+  addCube(Alliance alliance, [Robot robot]) {
     cubeCount++;
+    print('cube count is now $cubeCount for ${id(robot)}');
     _addPoints();
     balance.checkOwnership();
-    robot.putCubeX(null, event);
+  }
+
+  putCube(Robot robot, MouseEvent event, String sideClicked) {
+    print('clicked $sideClicked putCube in plate $color for alliance ${robot
+        .alliance.color} with id ${id(robot)}');
+    finished() {
+      cubeCount++;
+      _addPoints();
+      balance.checkOwnership();
+    }
+
+    robot.putCubeX(null, event, finished);
   }
 }
 
-class Balance {
+class Balance implements HasId {
+  String _id;
   final Match match;
   BalancePlate redPlate;
   BalancePlate bluePlate;
@@ -151,6 +182,8 @@ class Balance {
 
   int get rightCubeCount => rightPlate.cubeCount;
 
+  List<String> id(Robot robot) => [_id];
+
   BalancePlate get winningPlate {
     if (redPlate.cubeCount == bluePlate.cubeCount) return null;
     return redPlate.cubeCount > bluePlate.cubeCount ? redPlate : bluePlate;
@@ -165,7 +198,7 @@ class Balance {
     return false;
   }
 
-  Balance(this.match, this.pointMultiplier) {
+  Balance(this.match, this.pointMultiplier, this._id) {
     redPlate = new BalancePlate(this, match);
     bluePlate = new BalancePlate(this, match);
     newMatch();
@@ -275,12 +308,20 @@ class PowerUp {
 }
 
 class Vault implements PowerCubeTarget {
+  String _id;
   PowerUp force;
   PowerUp levitate;
   PowerUp boost;
   Alliance alliance;
 
-  Vault(this.alliance) {
+//  int get pointMargin => force.count + levitate.count + boost.count;
+  int get pointMargin => count;
+
+  int get cubeCount => count;
+
+  List<String> id(Robot robot) => [_id];
+
+  Vault(this.alliance, this._id) {
     force = new PowerUp(alliance);
     levitate = new PowerUp(alliance, isLevitate: true);
     boost = new PowerUp(alliance);
@@ -289,7 +330,7 @@ class Vault implements PowerCubeTarget {
   int count = 0;
 
   @override
-  addCube(Alliance alliance) {
+  addCube(Alliance alliance, [Robot robot]) {
     count++;
     alliance.tally.addPoints(5);
   }
@@ -297,9 +338,11 @@ class Vault implements PowerCubeTarget {
 
 class PowerCubeSource implements HasId {
   int count;
-  String id;
+  String _id;
 
-  PowerCubeSource(this.count, this.id);
+  PowerCubeSource(this.count, this._id);
+
+  List<String> id(Robot robot) => [_id];
 
   bool getCube() {
     if (count > 0) {
@@ -310,8 +353,12 @@ class PowerCubeSource implements HasId {
   }
 }
 
-abstract class PowerCubeTarget {
-  void addCube(Alliance alliance);
+abstract class PowerCubeTarget implements HasId {
+  void addCube(Alliance alliance, [Robot robot]);
+
+  int get pointMargin;
+
+  int get cubeCount;
 }
 
 class Variable {
@@ -337,7 +384,7 @@ class Robot {
   LocationService locationService;
 
   /// in milliseconds
-  Variable graspBall = new Variable(4000, 60, 30);
+  Variable graspBall = new Variable(1500, 60, 30);
 
   /// in milliseconds
   Variable turn = new Variable(2000, 60, 5);
@@ -346,13 +393,15 @@ class Robot {
   Variable travelSpeed = new Variable(100, 60, 0);
 
   /// in milliseconds
-  Variable deliverBall = new Variable(2000, 60, 30);
+  Variable deliverBall = new Variable(1500, 30, 30);
   int autonFailurePercent = 70;
 
   bool hasPowerCube = false;
   bool hasCrossedLine = false;
   bool hasParked = false;
   bool hasClimbed = false;
+
+  bool get isRed => alliance.isRed;
 
   Point currentLocation = new Point(0, 0);
 
@@ -384,39 +433,64 @@ class Robot {
     }
   }
 
-  getCube(PowerCubeSource source, [bool isPrematch = false]) {
+  Future<bool> getCube(PowerCubeSource source, [bool isPrematch = false]) {
 //    if (isPrematch) return;
-    final Location location = locationService.getLocation(source);
-    hasPowerCube = source.getCube();
-//    print('Move from ${currentLocation} to ${location.origin}');
-    onRobotMove(this, currentLocation, location.origin,
-        () => currentLocation = location.origin);
+    final Location location = locationService.getLocation(source, this);
+    Completer<bool> completer = new Completer();
+    finished() {
+      currentLocation = location.origin;
+      hasPowerCube = source.getCube();
+      completer.complete(true);
+    }
+
+    onRobotMove(this, currentLocation, location.origin, finished);
+    return completer.future;
   }
 
   getCubeX(PowerCubeSource source, MouseEvent event,
       [bool isPrematch = false]) {
 //    if (isPrematch) return;
     final Location location = locationService.getLocationX(event);
-    hasPowerCube = source.getCube();
-//    print('Move from ${currentLocation} to ${location.origin}');
-    onRobotMove(this, currentLocation, location.origin,
-        () => currentLocation = location.origin);
-  }
-
-  putCube(PowerCubeTarget target) {
-    target.addCube(alliance);
-    hasPowerCube = false;
-  }
-
-  putCubeX(PowerCubeTarget target, MouseEvent event) {
-    if (target != null) {
-      target.addCube(alliance);
+    finished() {
+      currentLocation = location.origin;
+      hasPowerCube = source.getCube();
     }
-    hasPowerCube = false;
+
+    onRobotMove(this, currentLocation, location.origin, finished);
+  }
+
+  Future<bool> putCube(PowerCubeTarget target) {
+    final Location location = locationService.getLocation(target, this);
+    Completer<bool> completer = new Completer();
+    print('Going to target: $target at: $location from $currentLocation');
+    finished() {
+      if (target != null) {
+        target.addCube(alliance, this);
+      }
+      currentLocation = location.center;
+      hasPowerCube = false;
+//      locationService.detectChanges();
+      completer.complete(true);
+    }
+
+    onRobotMove(this, currentLocation, location.center, finished);
+    return completer.future;
+  }
+
+  putCubeX(PowerCubeTarget target, MouseEvent event, [Function whenFinished]) {
     final Location location = locationService.getLocationX(event);
-//    print('Move from ${currentLocation} to ${location.origin}');
-    onRobotMove(this, currentLocation, location.origin,
-        () => currentLocation = location.origin);
+    finished() {
+      if (whenFinished != null) {
+        whenFinished();
+      }
+      if (target != null) {
+        target.addCube(alliance);
+      }
+      currentLocation = location.origin;
+      hasPowerCube = false;
+    }
+
+    onRobotMove(this, currentLocation, location.origin, finished);
   }
 }
 
@@ -424,9 +498,11 @@ typedef void OnRobotMove(
     Robot robot, Point start, Point end, Function whenFinished);
 
 abstract class LocationService {
-  Location getLocation(HasId source);
+  Location getLocation(HasId source, Robot robot);
 
   Location getLocationX(MouseEvent event);
+
+  void detectChanges();
 }
 
 class Location {
@@ -445,5 +521,5 @@ class Location {
 }
 
 abstract class HasId {
-  String get id;
+  List<String> id(Robot robot);
 }

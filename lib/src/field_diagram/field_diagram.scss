@@ -12,7 +12,7 @@
   width: $scaled-field-width;
   height: $scaled-field-depth;
   border-width: 2px;
-  background-color: rgba(240,240,240,0.67);
+  background-color: rgba(240, 240, 240, 0.67);
 }
 
 %balance-pad {
@@ -36,6 +36,15 @@
   line-height: 3;
 }
 
+%vault {
+  @extend %border;
+  width: $vault-width;
+  height: $vault-depth;
+  line-height: 3;
+  color: white;
+  border-color: black;
+}
+
 %source {
   @extend %border;
   background-color: yellow;
@@ -48,6 +57,20 @@
   top: 0;
   left: 0;
   border-bottom-right-radius: $portal-radius;
+}
+
+#blue-vault {
+  @extend %vault;
+  background-color: blue;
+  top: 0;
+  left: calc((#{$scaled-field-width} / 2) + #{$one-foot-width});
+}
+
+#red-vault {
+  @extend %vault;
+  background-color: red;
+  top: calc(#{$scaled-field-depth} - #{$vault-depth});
+  left: calc((#{$scaled-field-width} / 2) - #{$vault-width} - #{$one-foot-width});
 }
 
 #portal-red-right {
@@ -150,4 +173,3 @@
   position: absolute;
   z-index: 100;
 }
-

@@ -11,6 +11,7 @@ import '../scoring/model.dart';
   directives: const [CORE_DIRECTIVES, NgClass, NgIf],
 )
 class BalanceComponent implements OnInit {
+
   @Input()
   Robot robot;
 
@@ -59,8 +60,4 @@ class BalanceComponent implements OnInit {
     }
   }
 
-  xxx() {
-    balance.cubeCount(robot.alliance);
-    balance.redPlate.cubeCount;
-  }
 }

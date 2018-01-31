@@ -15,6 +15,7 @@ import '../utils/astar_util.dart';
   directives: const [CORE_DIRECTIVES, NgClass, BalanceComponent],
 )
 class FieldDiagram implements OnInit, AfterViewChecked, up.LocationService {
+  final ChangeDetectorRef changeDetectorRef;
   static const int DISPLAY_SCALE = 2;
 
   /// keep track of robots and the elements that visualize them
@@ -36,7 +37,7 @@ class FieldDiagram implements OnInit, AfterViewChecked, up.LocationService {
   @ViewChild('midScale')
   BalanceComponent midScale;
 
-  FieldDiagram();
+  FieldDiagram(this.changeDetectorRef);
 
   bool get isRed => robot.alliance.isRed;
 
@@ -88,18 +89,26 @@ class FieldDiagram implements OnInit, AfterViewChecked, up.LocationService {
   }
 
   @override
-  up.Location getLocation(up.HasId item) {
+  up.Location getLocation(up.HasId item, up.Robot robot) {
     Element parent = querySelector('#field');
-    Element element = querySelector('#${item.id}');
-    var rect = element.client;
-//    print(
-//        'Client left ${rect.left}, ${rect.top}, ${rect.width}, ${rect.height}');
+    Element element = findElement(item.id(robot));
+    element.classes.add('findme');
+    Rectangle rect = offsetFromDiagramX(element);
     return new up.Location(rect.left, rect.top, rect.width, rect.height);
+  }
+
+  Element findElement(List<String> ids) {
+    Element element = querySelector('#${ids.first}');
+    if (ids.length == 1) {
+      return element;
+    } else {
+      return element.querySelector('#${ids.last}');
+    }
   }
 
   /// calculate how long the move should take, move the robot, and disable input until finished
   onRobotMove(up.Robot bot, math.Point start, math.Point end, whenComplete) {
-//    print('Begin at $start go to $end');
+    print('Begin at $start go to $end');
     final num distance =
         math.sqrt(math.pow(start.x - end.x, 2) + math.pow(start.y - end.y, 2)) *
             DISPLAY_SCALE;
@@ -111,7 +120,7 @@ class FieldDiagram implements OnInit, AfterViewChecked, up.LocationService {
 //    print('Turn: $turn Travel Time: $travelTime Grasp ball: $graspBall');
 //    print('Distance: $distance Duration: $duration');
 
-    Element element = _robotMap[robot];
+    Element element = _robotMap[bot];
     math.Rectangle fieldRect = querySelector('#field').getBoundingClientRect();
 //    print('Start: $start End: $end');
     Map<int, Map<String, Object>> keyframes = {};
@@ -134,12 +143,18 @@ class FieldDiagram implements OnInit, AfterViewChecked, up.LocationService {
         duration: math.max(duration, 1000), onComplete: animationComplete);
   }
 
+  int redBots = 0;
+  int blueBots = 0;
+
   addRobot(up.Robot robot) {
+    String color = robot.isRed ? 'rgba(255, 0, 0, 0.5)' : 'rgba(0, 0, 255, 0.5)';
+    robot.isRed ? redBots++ : blueBots++;
     Element added = new DivElement()
+      ..text = '${robot.isRed ? redBots : blueBots}'
       ..classes.add('robot')
       ..style.width = '16px'
       ..style.height = '16px'
-      ..style.backgroundColor = 'rgba(255, 0, 0, 0.5)'
+      ..style.backgroundColor = color
       ..style.position = 'relative'
       ..style.zIndex = '100';
     querySelector('#field').children.add(added);
@@ -150,5 +165,13 @@ class FieldDiagram implements OnInit, AfterViewChecked, up.LocationService {
   resetRobots() {
     _robotMap.forEach((robot, element) => element.remove());
     _robotMap.clear();
+  }
+
+  detectChanges() {
+    changeDetectorRef.detectChanges();
+  }
+
+  xxx() {
+    match.blue.switch_;
   }
 }

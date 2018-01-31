@@ -6,6 +6,7 @@ import 'package:angular_components/angular_components.dart';
 import '../cube_operations/cube_operations.dart';
 import '../field_diagram/field_diagram.dart';
 import '../scoring/model.dart' as up;
+import '../scoring/autobot.dart';
 
 @Component(
   selector: 'power-up',
@@ -52,7 +53,24 @@ class PowerUpComponent implements OnInit {
     }
   }
 
-  xxx() {
-    robot.alliance.switch_;
+  startAutoBot() {
+    nearFieldAutoBot();
+    midFieldAutoBot();
+  }
+
+  void nearFieldAutoBot() {
+    var bot = new up.Robot(match.blue, fieldDiagram);
+    AutoBot autobot = AutoBotBuilder.sampleNearField(bot);
+    fieldDiagram.addRobot(bot);
+    print(autobot);
+    autobot.runAuto();
+  }
+
+  void midFieldAutoBot() {
+    var bot = new up.Robot(match.blue, fieldDiagram);
+    AutoBot autobot = AutoBotBuilder.sampleMidField(bot);
+    fieldDiagram.addRobot(bot);
+    print(autobot);
+    autobot.runAuto();
   }
 }

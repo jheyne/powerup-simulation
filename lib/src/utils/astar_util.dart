@@ -19,8 +19,8 @@ class GridBuilder {
     _maskOut(10, 52, 7, 4, answer);
     _maskOut(4, 58, 19, 1, answer);
     // red switch and red 6
-    _maskOut(5, 77, 17, 1, answer);
-    _maskOut(10, 78, 7, 4, answer);
+    _maskOut(5, 75, 17, 1, answer);
+    _maskOut(10, 76, 7, 4, answer);
     _maskOut(5, 84, 17, 1, answer);
     return answer;
   }
@@ -67,9 +67,10 @@ class PathPlanner {
     List<PointNode> nodes = findPath(from, to, rectangle);
     keyframes[0] = buildKeyframe(nodes.first, rectangle);
     keyframes[100] = buildKeyframe(nodes.last, rectangle);
-    int interval = max(1, ((nodes.length - 2) / 18).floor().toInt());
-    for (int i = interval; i < nodes.length - 1; i = i + interval) {
-      keyframes[i] = buildKeyframe(nodes[i], rectangle);
+//    int interval = max(1, ((nodes.length - 2) / 18).floor().toInt());
+    num interval = max(1, (100 / (nodes.length - 1)));
+    for (int i = 1; i < nodes.length - 1; i++) {
+      keyframes[(i * interval).floor().toInt()] = buildKeyframe(nodes[i], rectangle);
     }
     return keyframes;
   }
