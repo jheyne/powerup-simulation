@@ -34,11 +34,6 @@ class GridBuilder {
     }
   }
 
-  static _printGrid(List<List<bool>> answer) {
-    for (int i = 0; i < answer.length; i++) {
-      print(answer[i]);
-    }
-  }
 }
 
 class PathPlanner {

@@ -16,7 +16,7 @@
             </div>
         </div>
 
-        <div class="list" *ngIf="match.isInit">
+        <div class="list" *ngIf="match.gameClock.isInit">
             <div class="list" *ngIf="!robot.hasPowerCube">
                 <button-space></button-space>
                 <material-button class="get-cube" raised clear-size (trigger)="robot.getCube(robot.alliance.portalLeft, true)">Get cube from left portal
@@ -37,20 +37,20 @@
                 </material-button>
                 <button-space></button-space>
             </div>
-            <material-button class="start" raised clear-size (trigger)="match.startAutonomous()">START</material-button>
+            <material-button class="start" raised clear-size (trigger)="match.gameClock.start()">START</material-button>
             <material-button class="start" raised clear-size (trigger)="startAutoBot()">START AUTOBOT</material-button>
         </div>
 
-        <div *ngIf="match.isAuton">
+        <div *ngIf="match.gameClock.isAuton">
             <material-button *ngIf="!robot.hasCrossedLine" (trigger)="robot.crossLine()">Cross line</material-button>
             <cube-operations [robot]="robot"></cube-operations>
         </div>
 
-        <div *ngIf="match.isTeleop">
+        <div *ngIf="match.gameClock.isTeleop">
             <cube-operations [robot]="robot"></cube-operations>
         </div>
 
-        <div class="list" *ngIf="match.isDone">
+        <div class="list" *ngIf="match.gameClock.isDone">
             <material-button (trigger)="newMatch()">New match</material-button>
         </div>
     </div>

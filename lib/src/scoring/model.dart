@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:html';
 import 'dart:math';
+import 'game_clock.dart';
 
 enum Color { RED, BLUE }
-enum State { INIT, AUTON, TELEOP, DONE }
 enum PowerUpState { INIT, ACTIVE, COMPLETE }
 @deprecated
 enum Source { SWITCH_10, SCALE_6, PORTAL_LEFT, PORTAL_RIGHT }
@@ -39,18 +39,19 @@ class Alliance {
       switchSource._id = 'blue-6-source';
       allianceSource._id = 'blue-10-source';
     }
+    match.gameClock.addStateChangeListener(gameStateChanged);
   }
 
-  startAutonomous() {}
+  void gameStateChanged(State state) {
 
-  startTeleop() {}
+  }
 }
 
 class Match {
   Alliance red;
   Alliance blue;
   Balance scale;
-  State state = State.INIT;
+  GameClock gameClock = GameClock.instance;
 
   Match() {
     red = new Alliance(Color.RED, this);
@@ -59,31 +60,6 @@ class Match {
         (Alliance alliance) => alliance.vault.boost.isActiveForScale, "scale");
   }
 
-  bool get isAuton => state == State.AUTON;
-
-  bool get isInit => state == State.INIT;
-
-  bool get isTeleop => state == State.TELEOP;
-
-  bool get isDone => state == State.DONE;
-
-  void startAutonomous() {
-    state = State.AUTON;
-    new Timer(new Duration(seconds: 15), startTeleop);
-    red.startAutonomous();
-    blue.startAutonomous();
-  }
-
-  void startTeleop() {
-    state = State.TELEOP;
-    new Timer(new Duration(minutes: 2, seconds: 15), endGame);
-    red.startTeleop();
-    blue.startTeleop();
-  }
-
-  void endGame() {
-    state = State.DONE;
-  }
 }
 
 class Tally {
@@ -136,7 +112,7 @@ class BalancePlate extends PowerCubeTarget {
   bool get isRed => balance.redPlate == this;
 
   _addPoints() {
-    int points = match.isAuton ? 2 : 1;
+    int points = match.gameClock.isAuton ? 2 : 1;
 //    print('About to invoke multiplier ${alliance.color}');
     if (balance.pointMultiplier(alliance)) points = points * 2;
     alliance.tally.addPoints(points);
@@ -223,7 +199,7 @@ class Balance implements HasId {
 
   _addPoints([Timer ignore]) {
     if (owner == null) return;
-    int points = owner.alliance.match.isAuton ? 2 : 1;
+    int points = owner.alliance.match.gameClock.isAuton ? 2 : 1;
     if (pointMultiplier(owner.alliance)) points = points * 2;
     owner.alliance.tally.addPoints(points);
   }

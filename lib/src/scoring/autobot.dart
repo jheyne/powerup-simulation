@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'model.dart';
+import 'game_clock.dart';
 
 //class AutoBot extends Robot {
 //  AutoBot(Alliance alliance, LocationService locationService)
@@ -10,15 +11,18 @@ import 'model.dart';
 class AutoBotBuilder {
   static AutoBot sampleNearField(Robot robot) {
     AutoBot autoBot = new AutoBot(robot);
-    autoBot.strategies.add(StrategyBuilder.nearField(robot.alliance,
+    autoBot.strategies.add(GoalBuilder.nearField(robot.alliance,
         vaultMargin: 3, vaultMax: 3, switchMargin: 2, includeScale: true));
+//    autoBot.strategies.add(StrategyBuilder.nearField(robot.alliance,
+//        vaultMargin: 3, vaultMax: 3, switchMargin: 2, includeScale: true));
     return autoBot;
   }
 
   static AutoBot sampleMidField(Robot robot) {
     AutoBot autoBot = new AutoBot(robot);
     autoBot.strategies
-        .add(StrategyBuilder.midField(robot.alliance, switchMargin: 1));
+        .add(GoalBuilder.midField(robot.alliance, switchMargin: 1));
+//    .add(StrategyBuilder.midField(robot.alliance, switchMargin: 1));
     return autoBot;
   }
 }
@@ -26,204 +30,39 @@ class AutoBotBuilder {
 class AutoBot {
   Robot robot;
 
-  List<Strategy> strategies = [];
+  List<GoalStrategy> strategies = [];
 
   AutoBot(this.robot);
 
   runAuto() async {
-    for (Strategy strategy in strategies) {
+    for (GoalStrategy strategy in strategies) {
       await runStrategy(strategy);
     }
   }
 
-  Future<bool> runStrategy(Strategy strategy) async {
+  Future<bool> runStrategy(GoalStrategy goal) async {
     Completer<bool> completer = new Completer();
-    while (strategy.hasSources) {
-      bool hasCube = await strategy.fetchCube(robot);
+    print('about to start while');
+    int count = 0;
+    while (goal.hasSources && count++ < 100) {
+      print('about to fetch cube count $count');
+      bool hasCube = await goal.fetchCube(robot);
       if (!hasCube) {
         print('runStrategy completing because no cube');
         completer.complete(false);
         break;
       }
-      await strategy.placeCube(robot);
+      print('about to place cube');
+      await goal.placeCube(robot);
     }
     return completer.future;
   }
 
-  Future<bool> fetchAndPlace(Robot robot, Strategy strategy) async {
-    bool hasCube = await strategy.fetchCube(robot);
-    if (!hasCube) {
-      return false;
-    }
-    await strategy.placeCube(robot);
-    return true;
-  }
 }
 
-class StrategyBuilder {
-  static Strategy nearField(Alliance alliance,
-      {int vaultMargin: 3,
-      vaultMax: 9,
-      int switchMargin: 2,
-      bool includeScale: false,
-      int scaleMargin: 1,
-      int scaleMax: 2}) {
-    vault() => alliance.vault;
-    plate() =>
-        alliance.isRed ? alliance.switch_.redPlate : alliance.switch_.bluePlate;
-    List<TargetSpec> targets = [
-      new TargetSpec(plate, minMargin: switchMargin, priority: 10),
-      new TargetSpec(vault,
-          minMargin: vaultMargin, priority: 5, maxCount: vaultMax)
-    ];
-    if (includeScale) {
-      scalePlate() => alliance.isRed
-          ? alliance.match.scale.redPlate
-          : alliance.match.scale.bluePlate;
-      targets.add(new TargetSpec(scalePlate,
-          minMargin: scaleMargin, maxCount: scaleMax, priority: 1));
-    }
-    return new Strategy(
-        [() => alliance.switchSource, () => alliance.allianceSource], targets);
-  }
-
-  static Strategy midField(Alliance alliance,
-      {int switchMargin: 2, int scaleMargin: 2, int scaleMax: 100}) {
-    switchPlate() =>
-        alliance.isRed ? alliance.switch_.redPlate : alliance.switch_.bluePlate;
-    scalePlate() => alliance.isRed
-        ? alliance.match.scale.redPlate
-        : alliance.match.scale.bluePlate;
-    List<TargetSpec> targets = [
-      new TargetSpec(scalePlate,
-          minMargin: scaleMargin, maxCount: scaleMax, priority: 10),
-      new TargetSpec(switchPlate, minMargin: switchMargin, priority: 1),
-    ];
-    List<GetSource> sources = [
-      () => alliance.oppositeAlliance.switchSource,
-      () => alliance.switchSource,
-      () => alliance.allianceSource,
-    ];
-    return new Strategy(sources, targets);
-  }
-}
 
 typedef PowerCubeTarget GetTarget();
 typedef PowerCubeSource GetSource();
-
-class Strategy {
-  List<GetSource> sources;
-
-  /// the key is the target, and the value is the desired margin of points to maintain for the target
-  List<TargetSpec> targets;
-
-  Strategy(this.sources, this.targets);
-
-  bool get hasSources {
-    for (GetSource source in sources) {
-      if (source().count > 0) {
-        print('Source has count of ${source().count}');
-        return true;
-      }
-    }
-    return false;
-  }
-
-  FutureOr<bool> fetchCube(Robot robot) async {
-    if (!robot.hasPowerCube) {
-      PowerCubeSource source = nextSource;
-      print('Got nextSource $source with id ${source.id(robot)}');
-      if (source != null) {
-//        print('Source $source : ${source.id(robot)}');
-        bool success = await robot.getCube(source);
-//        return success;
-        return robot.hasPowerCube;
-      }
-    }
-    return true;
-  }
-
-  FutureOr<bool> placeCube(Robot robot) async {
-    if (robot.hasPowerCube) {
-      PowerCubeTarget target = nextTarget;
-      print('Got nextTarget $target with id ${target.id(robot)}');
-      if (target != null) {
-//        print('Target $target : ${target.id(robot)}');
-        bool success = await robot.putCube(target);
-        return success;
-      }
-    }
-    return true;
-  }
-
-  PowerCubeSource get nextSource {
-    for (GetSource source in sources) {
-      var src = source();
-      if (src.count > 0) return src;
-    }
-    return null;
-  }
-
-  PowerCubeTarget get nextTarget {
-    TargetSpec best = TargetSpec.nextTarget(targets);
-    return best?.target();
-  }
-}
-
-class TargetSpec {
-  GetTarget target;
-  int priority;
-  int minMargin;
-  int maxCount;
-
-  TargetSpec(this.target,
-      {this.priority = 1, this.minMargin = 1, this.maxCount = 100});
-
-  bool get hasMax => target().cubeCount >= maxCount;
-
-  int get marginDeficit => minMargin - target().pointMargin;
-
-  static TargetSpec nextTarget(List<TargetSpec> specs) {
-    specs.removeWhere((spec) => spec.hasMax);
-    if (specs.isEmpty) {
-      return null;
-    }
-    // assess risks
-    // re-evaluate goals
-    // goals:
-    // levitate by 90 secs
-    // overwhelming control of my switch until 60 sec
-    // just-in-time my switch starting at 60 sec
-    TargetSpec emergency = handleEmergency(specs);
-    if (emergency != null) {
-      return emergency;
-    }
-    return specs.reduce((spec1, spec2) => spec1.bestCubeCandidate(spec2));
-  }
-
-  static TargetSpec handleEmergency(List<TargetSpec> specs) {}
-
-  TargetSpec bestCubeCandidate(TargetSpec other) {
-    if (other.hasMax) {
-      return this;
-    }
-    if (hasMax) {
-      return other;
-    }
-    PowerCubeTarget me = target();
-    PowerCubeTarget you = other.target();
-    int myDeficit = marginDeficit;
-    int yourDeficit = other.marginDeficit;
-    print('My deficit: $myDeficit yours: $yourDeficit');
-    if (myDeficit == 0 && yourDeficit > 0) {
-      return other;
-    }
-    if (myDeficit == yourDeficit) {
-      return priority > other.priority ? this : other;
-    }
-    return myDeficit < yourDeficit ? this : other;
-  }
-}
 
 class GoalStrategy {
   List<TargetGoal> goals = [];
@@ -240,6 +79,7 @@ class GoalStrategy {
   }
 
   FutureOr<bool> fetchCube(Robot robot) async {
+    print('about to fetch cube');
     if (!robot.hasPowerCube) {
       SourceGoal goal = nextSourceGoal;
       if (goal != null) {
@@ -265,29 +105,41 @@ class GoalStrategy {
   }
 
   SourceGoal get nextSourceGoal {
+    print('about to nextSourceGoal');
     TargetGoal target = nextTargetGoal;
+    print('target for nextSourceGoal is $target');
     if (target != null) {
       for (SourceGoal source in target.sources) {
-        if (source.item.count > 0) return source;
+        if (source.item.count > 0) return p(source);
       }
     }
     return null;
   }
 
+  T p<T>(T t) {
+    print(t);
+    return t;
+  }
+
   TargetGoal get nextTargetGoal {
-//    TODO time
-    var currentSeconds = 100;
+    print('about to nextTargetGoal');
+    int currentSeconds = GameClock.instance.currentSecond;
     var applies =
         goals.where((goal) => goal.applies && goal.inTimeRange(currentSeconds));
+    print('applies $applies');
     if (applies.isNotEmpty) {
       var atRisk = applies.where((goal) => goal.isAtRisk(currentSeconds));
-      byPriority(TargetGoal prev, TargetGoal next) =>
-          prev.priority >= next.priority ? prev : next;
-      if (atRisk.isNotEmpty) {
-        return atRisk.reduce(byPriority);
+      byPriority(TargetGoal prev, TargetGoal next) {
+        print('byPriority $prev, $next');
+        return prev.priority >= next.priority ? prev : next;
       }
-      return atRisk.reduce(byPriority);
+
+      if (atRisk.isNotEmpty) {
+        return p(atRisk.reduce(byPriority));
+      }
+      return p(applies.reduce(byPriority));
     }
+    print('return null');
     return null;
   }
 }
@@ -304,10 +156,10 @@ class GoalBuilder {
       ..priority = 10
       ..addSource(getSource(ally.switchSource))
       ..addSource(getSource(ally.allianceSource));
-    var vaultGoal =
-        new VaultGoal(() => ally.vault, maxCount: vaultMax..priority = 5)
-          ..addSource(getSource(ally.allianceSource))
-          ..addSource(getSource(ally.switchSource));
+    var vaultGoal = new VaultGoal(() => ally.vault, maxCount: vaultMax)
+      ..priority = 5
+      ..addSource(getSource(ally.allianceSource))
+      ..addSource(getSource(ally.switchSource));
     List<Goal> targets = [switchGoal, vaultGoal];
     if (includeScale) {
       var scale = getBalance(ally, ally.match.scale,
@@ -375,8 +227,10 @@ abstract class Goal<T> {
 
   bool get applies;
 
-  bool inTimeRange(int currentSeconds) =>
-      currentSeconds > startAt && endAt < currentSeconds;
+  bool inTimeRange(int currentSeconds) => true;
+
+//  TODO
+//      currentSeconds > startAt && endAt < currentSeconds;
 
   /// higher number => higher priority
   int priority = 1;
@@ -409,7 +263,6 @@ abstract class TargetGoal<T extends PowerCubeTarget> extends Goal {
   }
 
   void addSource(SourceGoal goal) => sources.add(goal);
-
 }
 
 class BalanceGoal extends TargetGoal<BalancePlate> {

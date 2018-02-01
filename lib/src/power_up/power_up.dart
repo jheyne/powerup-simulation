@@ -26,7 +26,7 @@ class PowerUpComponent implements OnInit {
   up.Field field;
   up.Robot robot;
 
-  String get state => match.state.toString().split('.').last;
+  String get state => match.gameClock.state.toString().split('.').last;
 
   @ViewChild(FieldDiagram)
   FieldDiagram fieldDiagram;
