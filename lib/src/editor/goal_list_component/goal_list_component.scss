@@ -1,0 +1,65 @@
+@import "../../../../web/variables";
+
+%data-cell {
+  //width: 12%;
+  //margin-right: 12px;
+  justify-self: left;
+}
+
+%anchor {
+  color: $mat-blue-700;
+  cursor: pointer;
+  padding-bottom: 3px;
+}
+
+%anchor:hover {
+  text-decoration: underline;
+  text-decoration-style: dotted;
+}
+
+material-dialog {
+  width: 35%;
+}
+
+.id {
+  @extend %data-cell;
+  width: 26%;
+}
+
+.endAt {
+  @extend %data-cell;
+}
+
+.maxCount {
+  @extend %data-cell;
+}
+
+.minMargin {
+  @extend %data-cell;
+}
+
+.startAt {
+  @extend %data-cell;
+}
+
+.edit {
+  @extend %data-cell;
+  @extend %anchor;
+}
+
+.delete {
+  @extend %data-cell;
+  @extend %anchor;
+}
+
+.list {
+  display: grid;
+  grid-template-columns: 1fr 1fr 2fr 1fr 1fr 1fr 1fr;
+}
+
+.addGoal {
+  @extend %anchor;
+  text-align: right;
+  margin-right: 1em;
+  margin-top: -1.2em;
+}

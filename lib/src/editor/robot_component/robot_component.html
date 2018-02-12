@@ -1,0 +1,58 @@
+<div class="card">
+    <gauge-component
+            ident="progressBox"
+            leftLabel="Basic Bot"
+            rightLabel="Super Bot"
+            [labelFunction]="rankLabelFunction"
+            [clickFunction]="rankClickFunction"
+            [percentileFunction]="rankPercentileFunction"
+            tooltip="Click on the indicator to adjust all of the robot's performance features.
+            To change specific features, click 'More configuration options'.">
+    </gauge-component>
+    <div class="expand">
+        <a class="details" *ngIf="!showDetails" target="_blank" (click)="showDetails = true">More configuration
+            options</a>
+        <a class="details" *ngIf="showDetails" target="_blank" (click)="showDetails = false">Hide options</a>
+    </div>
+    <div *ngIf="showDetails">
+        <hr>
+
+        <div class="nestedGauge">
+            <gauge-component
+                    ident="speedBox"
+                    leftLabel="Moves with Low Speed"
+                    rightLabel="High Speed"
+                    [labelFunction]="speedLabelFunction"
+                    [clickFunction]="speedClickFunction"
+                    [percentileFunction]="speedPercentileFunction"
+                    tooltip="Click on the indicator to select the robot's speed and turning performance.
+                You can make more detailed selections using the table below.">
+            </gauge-component>
+
+            <gauge-component
+                    ident="agilityBox"
+                    leftLabel="Not Agile"
+                    rightLabel="Very Agile"
+                    [labelFunction]="agilityLabelFunction"
+                    [clickFunction]="agilityClickFunction"
+                    [percentileFunction]="agilityPercentileFunction"
+                    tooltip="Click on the indicator to select the robot's agility when fetching and placing cubes.
+                You can make more detailed selections using the table below.">
+            </gauge-component>
+        </div>
+
+        <p class="header">Performance Details
+            <material-icon-tooltip type="info">
+                Review and edit the the precise performance characteristics of the robot.
+            </material-icon-tooltip>
+        </p>
+        <robot-detail-component [robot]="robot"></robot-detail-component>
+
+        <p class="header">Goals
+            <material-icon-tooltip type="info">
+                Review and specify the tasks the robot should attempt to execute at specific times during the match.
+            </material-icon-tooltip>
+        </p>
+        <goal-list-component [specs]="robot.goalSpecs"></goal-list-component>
+    </div>
+</div>

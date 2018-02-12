@@ -1,0 +1,53 @@
+[
+  {
+    "label": "near field",
+    "goals": [
+      {
+        "startAt": 0,
+        "endAt": 150,
+        "type": "BalanceGoal",
+        "goalType": "BalancePlate",
+        "priority": 10,
+        "sources": [
+          "red-6-source",
+          "red-10-source"
+        ],
+        "id": "bottom-switch",
+        "minMargin": 2,
+        "maxCount": 20,
+        "target": "bottom-switch"
+      },
+      {
+        "startAt": 0,
+        "endAt": 150,
+        "type": "VaultGoal",
+        "goalType": "Vault",
+        "priority": 5,
+        "sources": [
+          "red-10-source",
+          "red-6-source",
+          "portal-red-right",
+          "portal-red-left"
+        ],
+        "id": "red-vault",
+        "maxCount": 3,
+        "target": "red-vault"
+      },
+      {
+        "startAt": 0,
+        "endAt": 150,
+        "type": "BalanceGoal",
+        "goalType": "BalancePlate",
+        "priority": 1,
+        "sources": [
+          "blue-6-source",
+          "red-10-source"
+        ],
+        "id": "scale",
+        "minMargin": 1,
+        "maxCount": 2,
+        "target": "scale"
+      }
+    ]
+  }
+]

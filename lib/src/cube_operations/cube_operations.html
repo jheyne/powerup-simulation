@@ -31,20 +31,20 @@
     <material-button (click)="robot.putCube(robot.alliance.switch_)">
         <material-icon icon="format_indent_decrease"></material-icon>
         <span class="buttonLabel">Your switch</span>
-        <span class="count red"> {{robot.alliance.switch_.redCubes}}</span>
-        <span class="count blue"> {{robot.alliance.switch_.blueCubes}}</span>
+        <span class="count red"> {{robot.alliance.switch_.redPlate.cubeCount}}</span>
+        <span class="count blue"> {{robot.alliance.switch_.bluePlate.cubeCount}}</span>
     </material-button>
     <material-button (click)="robot.putCube(robot.alliance.oppositeAlliance.switch_)">
         <material-icon icon="format_indent_decrease"></material-icon>
         <span class="buttonLabel">Opposition's switch</span>
-        <span class="count red"> {{robot.alliance.oppositeAlliance.switch_.redCubes}}</span>
-        <span class="count blue"> {{robot.alliance.oppositeAlliance.switch_.blueCubes}}</span>
+        <span class="count red"> {{robot.alliance.oppositeAlliance.switch_.redPlate.cubeCount}}</span>
+        <span class="count blue"> {{robot.alliance.oppositeAlliance.switch_.bluePlate.cubeCount}}</span>
     </material-button>
     <material-button (click)="robot.putCube(robot.alliance.match.scale)">
         <material-icon icon="format_indent_decrease"></material-icon>
         <span class="buttonLabel">Scale</span>
-        <span class="count red"> {{robot.alliance.match.scale.redCubes}}</span>
-        <span class="count blue"> {{robot.alliance.match.scale.blueCubes}}</span>
+        <span class="count red"> {{robot.alliance.match.scale.redPlate.cubeCount}}</span>
+        <span class="count blue"> {{robot.alliance.match.scale.bluePlate.cubeCount}}</span>
     </material-button>
     <material-button (click)="robot.putCube(robot.alliance.vault)">
         <material-icon icon="format_indent_decrease"></material-icon>

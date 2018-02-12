@@ -1,0 +1,45 @@
+.container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-top: 12px;
+  margin-bottom: 12px;
+}
+
+.details {
+  color: blue;
+  cursor: pointer;
+  font-size: small;
+  grid-column-end: span 2;
+  justify-self: end;
+  padding-bottom: 3px;
+}
+.details:hover {
+  text-decoration: underline;
+  text-decoration-style: dotted;
+}
+.material-progress {
+  grid-column-end: span 2;
+}
+
+.label {
+  margin-bottom: 5px;
+  font-weight: bold;
+  grid-column-end: span 2;
+  justify-self: center;
+}
+
+.smallLabel {
+  font-size: x-small;
+  margin-bottom: -5px;
+}
+
+.rightLabel {
+  justify-self: end;
+}
+
+#progressBox {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 0px;
+}

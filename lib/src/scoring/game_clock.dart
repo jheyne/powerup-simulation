@@ -25,12 +25,13 @@ class GameClock {
   addStateChangeListener(StateChange function) => stateChangedListeners.add(function);
 
   start() {
-    GameClock.instance = this;
+//    GameClock.instance = this;
     currentSecond = 0;
     incrementTime(Timer timer) {
-      () => currentSecond++;
+      currentSecond++;
       if (currentSecond >= 150) {
         timer.cancel();
+        endGame();
       }
     }
 
@@ -63,4 +64,6 @@ class GameClock {
   reset() {
     state = State.INIT;
   }
+
+  bool get isGameActive => isAuton || isTeleop;
 }

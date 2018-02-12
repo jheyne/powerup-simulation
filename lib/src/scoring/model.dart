@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:html';
 import 'dart:math';
+
 import 'game_clock.dart';
+import 'goal_spec.dart';
 
 enum Color { RED, BLUE }
 enum PowerUpState { INIT, ACTIVE, COMPLETE }
@@ -32,7 +34,7 @@ class Alliance {
     switch_ = new Balance(
         match,
         (Alliance ally) => ally.vault.boost.isActiveForSwitch,
-        color == Color.RED ? 'bottom_switch' : 'top-switch');
+        color == Color.RED ? 'bottom-switch' : 'top-switch');
     if (color == Color.BLUE) {
       portalLeft._id = 'portal-blue-left';
       portalRight._id = 'portal-blue-right';
@@ -42,9 +44,7 @@ class Alliance {
     match.gameClock.addStateChangeListener(gameStateChanged);
   }
 
-  void gameStateChanged(State state) {
-
-  }
+  void gameStateChanged(State state) {}
 }
 
 class Match {
@@ -59,13 +59,16 @@ class Match {
     scale = new Balance(this,
         (Alliance alliance) => alliance.vault.boost.isActiveForScale, "scale");
   }
-
 }
 
 class Tally {
   int matchPoints = 0;
 
-  addPoints(int count) => matchPoints = matchPoints + count;
+  addPoints(int count) {
+    if (GameClock.instance.isGameActive) {
+      matchPoints = matchPoints + count;
+    }
+  }
 }
 
 typedef bool PointMultiplier(Alliance alliance);
@@ -74,16 +77,16 @@ Random randomInstance = new Random();
 
 class BalancePlate extends PowerCubeTarget {
   List<String> id(Robot robot) {
-    List<String> list = [
-      balance.id(robot).first
-    ];
-    if(robot.isRed) {
+    List<String> list = [basicId];
+    if (robot.isRed) {
       list.add(balance.redPlate == balance.rightPlate ? "right" : "left");
     } else {
       list.add(balance.bluePlate == balance.rightPlate ? "right" : "left");
     }
     return list;
   }
+
+  String get basicId => balance.basicId;
 
   int cubeCount = 0;
   final Balance balance;
@@ -158,7 +161,9 @@ class Balance implements HasId {
 
   int get rightCubeCount => rightPlate.cubeCount;
 
-  List<String> id(Robot robot) => [_id];
+  List<String> id(Robot robot) => [basicId];
+
+  String get basicId => _id;
 
   BalancePlate get winningPlate {
     if (redPlate.cubeCount == bluePlate.cubeCount) return null;
@@ -295,7 +300,9 @@ class Vault implements PowerCubeTarget {
 
   int get cubeCount => count;
 
-  List<String> id(Robot robot) => [_id];
+  List<String> id(Robot robot) => [basicId];
+
+  String get basicId => _id;
 
   Vault(this.alliance, this._id) {
     force = new PowerUp(alliance);
@@ -318,7 +325,9 @@ class PowerCubeSource implements HasId {
 
   PowerCubeSource(this.count, this._id);
 
-  List<String> id(Robot robot) => [_id];
+  List<String> id(Robot robot) => [basicId];
+
+  String get basicId => _id;
 
   bool getCube() {
     if (count > 0) {
@@ -340,37 +349,104 @@ abstract class PowerCubeTarget implements HasId {
 class Variable {
   static final Random random = new Random();
 
-  num _value;
-  num _variationPercent;
-  num _failurePercent;
+  num value;
+  num variationPercent;
+  num failurePercent;
 
-  Variable(this._value, this._variationPercent, this._failurePercent);
+  Variable(this.value, this.variationPercent, this.failurePercent);
 
   num get sampleValue {
-    final num delta = random.nextInt(_value * _variationPercent ~/ 100);
-    var result = random.nextBool() ? _value + delta : _value - delta;
+    final num delta = random.nextInt(value * variationPercent ~/ 100);
+    var result = random.nextBool() ? value + delta : value - delta;
 //    print(
 //        'Given: $_value Variation: $_variationPercent Delta: $delta Result: $result');
     return result;
   }
+
+  Map<String, dynamic> toJson() {
+    Map<String, dynamic> json = {};
+    json['value'] = value;
+    json['variation'] = variationPercent;
+    json['failure'] = failurePercent;
+    return json;
+  }
 }
 
+class VariableRange {
+  Variable worst;
+  Variable best;
+
+  VariableRange(this.worst, this.best);
+
+  adjust(Variable variable, int rank) {
+    variable.value = adjustRange(best.value, worst.value, rank);
+//    variable.variationPercent =
+//        adjustRange(best.variationPercent, worst.variationPercent, rank);
+//    variable.failurePercent =
+//        adjustRange(best.failurePercent, worst.failurePercent, rank);
+  }
+
+  num adjustRange(num bestValue, num worstValue, int rank) {
+    num range = (bestValue - worstValue).abs();
+    num delta = range * rank / 100;
+    bool betterIsSmaller = bestValue < worstValue;
+    var x = betterIsSmaller ? worstValue - delta : worstValue + delta;
+    print('Best $bestValue Worst $worstValue Delta: $delta Computed Value: $x');
+    return x.round();
+  }
+}
+
+typedef LocationService HasLocationService();
+
 class Robot {
+  String label = "unnamed";
   Alliance alliance;
-  LocationService locationService;
+  HasLocationService hasLocationService;
+  String strategy;
 
   /// in milliseconds
-  Variable graspBall = new Variable(1500, 60, 30);
+  Variable graspCube = new Variable(3500, 60, 30);
+  static VariableRange graspCubeRange =
+      new VariableRange(new Variable(12000, 60, 80), new Variable(750, 20, 10));
 
   /// in milliseconds
-  Variable turn = new Variable(2000, 60, 5);
+  Variable turn = new Variable(3000, 60, 5);
+  static VariableRange turnRange =
+      new VariableRange(new Variable(5000, 60, 50), new Variable(750, 20, 5));
 
   /// in centimeter per second
-  Variable travelSpeed = new Variable(100, 60, 0);
+  Variable travelSpeed = new Variable(300, 60, 0);
+  static VariableRange travelSpeedRange =
+      new VariableRange(new Variable(50, 60, 30), new Variable(500, 20, 5));
 
   /// in milliseconds
-  Variable deliverBall = new Variable(1500, 30, 30);
+  Variable deliverCube = new Variable(2000, 30, 30);
+  static VariableRange deliverCubeRange =
+      new VariableRange(new Variable(15000, 60, 30), new Variable(1000, 20, 5));
+
+  /// in milliseconds
+  Variable deliverCubeHigh = new Variable(9000, 30, 30);
+  static VariableRange deliverCubeHighRange =
+      new VariableRange(new Variable(25000, 60, 30), new Variable(3000, 20, 5));
   int autonFailurePercent = 70;
+
+  List<GoalSpec> goalSpecs = [];
+
+  Map<String, dynamic> toJson() {
+    Map<String, dynamic> json = {};
+    json['graspCube'] = graspCube.toJson();
+    json['turn'] = turn.toJson();
+    json['travelSpeed'] = travelSpeed.toJson();
+    json['deliverCube'] = deliverCube.toJson();
+    json['deliverCubeHigh'] = deliverCubeHigh.toJson();
+    json['autonFailure'] = autonFailurePercent;
+    List<Map<String, dynamic>> specs = [];
+    for (GoalSpec spec in goalSpecs) {
+      specs.add(spec.toJson());
+    }
+    json['goalSpecs'] = specs;
+    return json;
+  }
 
   bool hasPowerCube = false;
   bool hasCrossedLine = false;
@@ -386,7 +462,7 @@ class Robot {
 
   doNothing() => null;
 
-  Robot(this.alliance, this.locationService);
+  Robot(this.alliance, this.hasLocationService);
 
   crossLine() {
     if (!hasCrossedLine) {
@@ -411,7 +487,7 @@ class Robot {
 
   Future<bool> getCube(PowerCubeSource source, [bool isPrematch = false]) {
 //    if (isPrematch) return;
-    final Location location = locationService.getLocation(source, this);
+    final Location location = hasLocationService().getLocation(source, this);
     Completer<bool> completer = new Completer();
     finished() {
       currentLocation = location.origin;
@@ -426,7 +502,7 @@ class Robot {
   getCubeX(PowerCubeSource source, MouseEvent event,
       [bool isPrematch = false]) {
 //    if (isPrematch) return;
-    final Location location = locationService.getLocationX(event);
+    final Location location = hasLocationService().getLocationX(event);
     finished() {
       currentLocation = location.origin;
       hasPowerCube = source.getCube();
@@ -436,7 +512,7 @@ class Robot {
   }
 
   Future<bool> putCube(PowerCubeTarget target) {
-    final Location location = locationService.getLocation(target, this);
+    final Location location = hasLocationService().getLocation(target, this);
     Completer<bool> completer = new Completer();
     print('Going to target: $target at: $location from $currentLocation');
     finished() {
@@ -454,7 +530,7 @@ class Robot {
   }
 
   putCubeX(PowerCubeTarget target, MouseEvent event, [Function whenFinished]) {
-    final Location location = locationService.getLocationX(event);
+    final Location location = hasLocationService().getLocationX(event);
     finished() {
       if (whenFinished != null) {
         whenFinished();
@@ -467,6 +543,26 @@ class Robot {
     }
 
     onRobotMove(this, currentLocation, location.origin, finished);
+  }
+
+  /// adjust the overall performance of the robot to reflect the given ranking
+  void set ranking(int rank) {
+    travelSpeedRange.adjust(travelSpeed, rank);
+    turnRange.adjust(turn, rank);
+    graspCubeRange.adjust(graspCube, rank);
+    deliverCubeRange.adjust(deliverCube, rank);
+    deliverCubeHighRange.adjust(deliverCubeHigh, rank);
+  }
+
+  void set speed(int rank) {
+    travelSpeedRange.adjust(travelSpeed, rank);
+    turnRange.adjust(turn, rank);
+  }
+
+  void set agility(int rank) {
+    graspCubeRange.adjust(graspCube, rank);
+    deliverCubeRange.adjust(deliverCube, rank);
+    deliverCubeHighRange.adjust(deliverCubeHigh, rank);
   }
 }
 
@@ -498,4 +594,6 @@ class Location {
 
 abstract class HasId {
   List<String> id(Robot robot);
+
+  String get basicId;
 }

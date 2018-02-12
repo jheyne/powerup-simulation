@@ -1,0 +1,61 @@
+<div>
+    <div>
+        <label class="label">ID</label>
+        <material-dropdown-select
+                id="idSelector"
+                [selection]="idSelection"
+                [buttonText]="spec.id"
+                [options]="idOptions"
+                width="2"
+                class="bordered-list"
+                title="Select where the cubes should be placed.">
+        </material-dropdown-select>
+    </div>
+    <div class="container">
+        <material-input
+                floatingLabel
+                type="number"
+                errorMsg="That's not a number"
+                label="Start At (seconds)"
+                [(ngModel)]="spec.startAtStr"
+                title="Enter the number of seconds when the task becomes available. Auton starts 0, teleop starts at 15, and endgame starts at 120"></material-input>
+        <material-input floatingLabel type="number" errorMsg="That's not a number" label="End At (seconds)"
+                        [(ngModel)]="spec.endAtStr"
+                        title="Enter the number of seconds when the task is no longer available. Auton starts 0, teleop starts at 15, and endgame starts at 120"></material-input>
+
+        <material-input floatingLabel type="number" errorMsg="That's not a number"
+                        label="Priority (10 is higher than 1)"
+                        [(ngModel)]="spec.priorityStr"
+                        title="10 indicates a higher priority than 1. Priority is used to choose between available tasks when all other features are equivalent"></material-input>
+        <div></div>
+
+        <material-input floatingLabel type="number" errorMsg="That's not a number" *ngIf="spec.isBalance"
+                        label="Maintain Power Cube Lead of..." [(ngModel)]="spec.minMarginStr"
+                        title="This rule applies to switches and the scale. It can be used to express, 'Try to keep the specified number of cubes ahead of the opposition'"></material-input>
+        <material-input floatingLabel type="number" errorMsg="That's not a number"
+                        *ngIf="spec.isBalance || spec.isVault" label="Maximum Power Cube Count"
+                        [(ngModel)]="spec.maxCountStr"
+                        title="Ignore this task if the target already has the specified number of cubes."></material-input>
+
+        <div title="Specify where to get cubes. Order is important: sources will be exhausted in order. You can drag and drop sources to change the order.">
+            <label class="label">Sources</label>
+            <ol>
+                <reorder-list (reorder)="onReorderSources($event)">
+                    <li *ngFor="let source of spec.sources" reorderItem>
+                        {{source}}
+                    </li>
+                </reorder-list>
+            </ol>
+        </div>
+        <material-dropdown-select
+                [selection]="sourceSelection"
+                buttonText="Select Sources"
+                [options]="sourceOptions"
+                width="2"
+                class="bordered-list"
+                title = "Choose the sources which can supply cubes for the target.">
+        </material-dropdown-select>
+    </div>
+</div>
+<h2>Description</h2>
+<p>{{spec.description}}</p>

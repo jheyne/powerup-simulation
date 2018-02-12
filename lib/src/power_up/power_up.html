@@ -15,30 +15,36 @@
                 Blue Score: {{match.blue.tally.matchPoints}}
             </div>
         </div>
+        <div class="remainingTime">
+            <div >
+                Remaining Time: {{150 - match.gameClock.currentSecond}}
+            </div>
+        </div>
 
         <div class="list" *ngIf="match.gameClock.isInit">
             <div class="list" *ngIf="!robot.hasPowerCube">
                 <button-space></button-space>
-                <material-button class="get-cube" raised clear-size (trigger)="robot.getCube(robot.alliance.portalLeft, true)">Get cube from left portal
+                <material-button class="get-cube" raised clear-size
+                                 (trigger)="robot.getCube(robot.alliance.portalLeft, true)">Get cube from left portal
                 </material-button>
                 <button-space></button-space>
-                <material-button class="get-cube" raised clear-size (trigger)="robot.getCube(robot.alliance.portalRight, true)">Get cube from right portal
+                <material-button class="get-cube" raised clear-size
+                                 (trigger)="robot.getCube(robot.alliance.portalRight, true)">Get cube from right portal
                 </material-button>
             </div>
             <div class="list">
                 <button-space></button-space>
-                <material-button class="place-robot" raised clear-size >Start at left
+                <material-button class="place-robot" raised clear-size>Start at left
                 </material-button>
                 <button-space></button-space>
-                <material-button class="place-robot" raised clear-size >Start at center
+                <material-button class="place-robot" raised clear-size>Start at center
                 </material-button>
                 <button-space></button-space>
-                <material-button class="place-robot" raised clear-size >Start at right
+                <material-button class="place-robot" raised clear-size>Start at right
                 </material-button>
                 <button-space></button-space>
             </div>
             <material-button class="start" raised clear-size (trigger)="match.gameClock.start()">START</material-button>
-            <material-button class="start" raised clear-size (trigger)="startAutoBot()">START AUTOBOT</material-button>
         </div>
 
         <div *ngIf="match.gameClock.isAuton">
@@ -52,6 +58,19 @@
 
         <div class="list" *ngIf="match.gameClock.isDone">
             <material-button (trigger)="newMatch()">New match</material-button>
+        </div>
+
+        <div class="list">
+            <material-button class="start" raised clear-size (trigger)="startAutoBot()">START AUTOBOT</material-button>
+        </div>
+        <div>
+            <goal-component [spec]="selectedSpec"></goal-component>
+        </div>
+        <div>
+            <goal-list-component [specs]="specs"></goal-list-component>
+        </div>
+        <div>
+            <main-page-component></main-page-component>
         </div>
     </div>
 </div>

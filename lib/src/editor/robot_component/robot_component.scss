@@ -1,0 +1,56 @@
+@import "../../../../web/variables";
+
+gauge-component {
+  padding-top: 12px;
+}
+
+hr {
+  margin-bottom: 1em;
+  margin-top: 1em;
+  margin-left: 4em;
+  margin-right: 4em;
+  border-color: $mat-blue-600;
+}
+
+.details {
+  color: $mat-blue-600;
+  cursor: pointer;
+  font-size: small;
+  grid-column-end: span 2;
+  justify-self: end;
+  padding-bottom: 3px;
+}
+
+.details:hover {
+  text-decoration: underline;
+  text-decoration-style: dotted;
+}
+
+.expand {
+  //margin-top: 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 0px;
+}
+
+.card {
+  background-color: white;
+  margin-top: 12px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  padding-top: 12px;
+  padding-bottom: 12px;
+  padding-left: 12px;
+  padding-right: 12px;
+  border-radius: 12px;
+}
+
+.header {
+  margin-top: 1.5em;
+  font-weight: bold;
+  text-align: center;
+}
+
+.nestedGauge {
+  padding-left: 2em;
+  padding-right: 2em;
+}

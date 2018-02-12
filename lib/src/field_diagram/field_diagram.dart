@@ -66,16 +66,12 @@ class FieldDiagram implements OnInit, AfterViewChecked, up.LocationService {
 
   @override
   up.Location getLocationX(MouseEvent event) {
-    Element element = event.target;
-    Rectangle diagramOffset = offsetFromDiagramX(element);
-    var rect = diagramOffset;
-//    print('ClientX ${element.id} left ${rect.left}, ${rect.top}, ${rect
-//        .width}, ${rect.height}');
+    Rectangle rect = offsetFromDiagram(event.target);
     return new up.Location(rect.left + rect.width / 2 - 8,
         rect.top + rect.height / 2 - 8, rect.width, rect.height);
   }
 
-  Rectangle offsetFromDiagramX(Element element) {
+  Rectangle offsetFromDiagram(Element element) {
     Element parent = querySelector('#field');
     Element current = element;
     num left = 0;
@@ -91,9 +87,11 @@ class FieldDiagram implements OnInit, AfterViewChecked, up.LocationService {
   @override
   up.Location getLocation(up.HasId item, up.Robot robot) {
     Element parent = querySelector('#field');
-    Element element = findElement(item.id(robot));
+    var id = item.id(robot);
+    print('ID of getLocation: $id');
+    Element element = findElement(id);
     element.classes.add('findme');
-    Rectangle rect = offsetFromDiagramX(element);
+    Rectangle rect = offsetFromDiagram(element);
     return new up.Location(rect.left, rect.top, rect.width, rect.height);
   }
 
@@ -115,9 +113,9 @@ class FieldDiagram implements OnInit, AfterViewChecked, up.LocationService {
     final num turn = bot.turn.sampleValue;
     final num travelTime = distance / bot.travelSpeed.sampleValue;
     // TODO need to know operation being performed
-    final num graspBall = bot.graspBall.sampleValue;
-    final int duration = (turn + travelTime + graspBall).toInt();
-//    print('Turn: $turn Travel Time: $travelTime Grasp ball: $graspBall');
+    final num graspCube = bot.graspCube.sampleValue;
+    final int duration = (turn + travelTime + graspCube).toInt();
+//    print('Turn: $turn Travel Time: $travelTime Grasp ball: $graspCube');
 //    print('Distance: $distance Duration: $duration');
 
     Element element = _robotMap[bot];
@@ -147,19 +145,23 @@ class FieldDiagram implements OnInit, AfterViewChecked, up.LocationService {
   int blueBots = 0;
 
   addRobot(up.Robot robot) {
-    String color = robot.isRed ? 'rgba(255, 0, 0, 0.5)' : 'rgba(0, 0, 255, 0.5)';
+    String color =
+        robot.isRed ? 'rgba(255, 0, 0, 0.5)' : 'rgba(0, 0, 255, 0.5)';
     robot.isRed ? redBots++ : blueBots++;
     Element added = new DivElement()
       ..text = '${robot.isRed ? redBots : blueBots}'
+      ..title = robot.label
       ..classes.add('robot')
       ..style.width = '16px'
       ..style.height = '16px'
       ..style.backgroundColor = color
-      ..style.position = 'relative'
+      ..style.position = 'absolute'
       ..style.zIndex = '100';
     querySelector('#field').children.add(added);
     _robotMap[robot] = added;
     robot.onRobotMove = onRobotMove;
+    robot.currentLocation = new Point(
+        added.getBoundingClientRect().left, added.getBoundingClientRect().top);
   }
 
   resetRobots() {
@@ -171,7 +173,17 @@ class FieldDiagram implements OnInit, AfterViewChecked, up.LocationService {
     changeDetectorRef.detectChanges();
   }
 
-  xxx() {
-    match.blue.switch_;
+  placeRobots() {
+    int red = 1;
+    int blue = 1;
+    _robotMap.forEach((robot, element) {
+      if (robot.isRed) {
+        element.style.left = '${red++ * 25}%';
+        element.style.top = '97%';
+      } else {
+        element.style.left = '${blue++ * 25}%';
+        element.style.top = '3%';
+      }
+    });
   }
 }

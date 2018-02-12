@@ -1,0 +1,11 @@
+<div class="container" [id]="ident">
+    <div class="label">{{label}}
+        <material-icon-tooltip type="info">
+            {{tooltip}}
+        </material-icon-tooltip>
+    </div>
+    <span class="smallLabel">{{leftLabel}}</span><span class="smallLabel rightLabel">{{rightLabel}}</span>
+    <div class="material-progress" (click)="click($event)">
+        <material-progress #progressBar [activeProgress]="rank"></material-progress>
+    </div>
+</div>

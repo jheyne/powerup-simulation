@@ -1,0 +1,43 @@
+@import "../../../../web/variables";
+
+%cell {
+  width: 100px;
+}
+
+input {
+  @extend %cell;
+
+}
+
+span {
+  @extend %cell;
+}
+
+%label {
+  @extend %cell;
+  font-weight: bold;
+  color: $mat-blue-700;
+  display: inline-block;
+}
+
+.columnLabel {
+  @extend %label;
+}
+
+.rowLabel {
+  @extend %label;
+  width: 150px;
+}
+
+.container {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  grid-gap: 5px;
+  margin-bottom: 5px;
+}
+
+.subtext {
+  font-weight: normal;
+  font-size: x-small;
+  color: black;
+}
