@@ -3,7 +3,8 @@
 %data-cell {
   //width: 12%;
   //margin-right: 12px;
-  justify-self: left;
+  //justify-self: left;
+  font-size: 11pt;
 }
 
 %anchor {
@@ -54,12 +55,24 @@ material-dialog {
 
 .list {
   display: grid;
-  grid-template-columns: 1fr 1fr 2fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 2fr 1fr 1fr 0.5fr 1fr 1.5fr;
+  font-size: 11pt;
 }
 
 .addGoal {
   @extend %anchor;
-  text-align: right;
-  margin-right: 1em;
-  margin-top: -1.2em;
+  //justify-self: right;
+  //grid-column-end: span2;
+  //margin-right: 1em;
+  //text-align: right;
+  //margin-right: 1em;
+  //margin-top: -1.2em;
+}
+
+.label {
+  @extend %data-cell;
+  font-weight: bold;
+  color: $mat-blue-700;
+  //display: inline-block;
+  margin-bottom: 5px;
 }

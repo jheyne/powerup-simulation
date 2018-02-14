@@ -71,7 +71,7 @@ class MainPageComponent implements OnInit {
   }
 
   buildSpecs(up.Robot robot, GoalStrategy strategy) {
-    robot.strategy = strategy.label;
+    robot.strategyLabel = strategy.label;
     for (TargetGoal goal in strategy.goals) {
       robot.goalSpecs.add(new GoalSpec()..fromJson(goal.toJson()));
     }

@@ -7,6 +7,7 @@ import '../../scoring/model.dart';
 import '../gauge_component/gauge_component.dart';
 import '../goal_list_component/goal_list_component.dart';
 import '../robot_detail_component/robot_detail_component.dart';
+import '../stored_data_component/stored_data_component.dart';
 
 @Component(
     selector: 'robot-component',
@@ -25,6 +26,7 @@ import '../robot_detail_component/robot_detail_component.dart';
       RobotDetailComponent,
       GoalListComponent,
       GaugeComponent,
+      StoredDataComponent,
     ],
     pipes: const [
       COMMON_PIPES
@@ -40,11 +42,11 @@ class RobotComponent implements OnInit {
   bool showMoreDetails = false;
 
 //  TODO get values from robot
-  int ranking = 34;
-  int speed = 34;
-  int agility = 34;
+  int get ranking => robot.ranking;
+  int get speed => robot.speed;
+  int get agility => robot.agility;
 
-  String get strategyLabel => robot.strategy;
+  String get strategyLabel => robot.strategyLabel;
 
   @ViewChild(MaterialProgressComponent)
   MaterialProgressComponent progressBar;
@@ -52,7 +54,7 @@ class RobotComponent implements OnInit {
   RobotComponent() {
     rankLabelFunction =
         () => "'${robot.label}' ranks ${ranking}th percentile. Strategy: ${robot
-        .strategy}";
+        .strategyLabel}";
     rankClickFunction = (MouseEvent event) => setRanking(event);
     rankPercentileFunction = () => ranking;
 
@@ -74,24 +76,21 @@ class RobotComponent implements OnInit {
     DivElement box = querySelector('#progressBox');
     Rectangle rect = box.getBoundingClientRect();
     Element div = event.target;
-    ranking = (((event.client.x - rect.left) / div.clientWidth) * 100).round();
-    robot.ranking = ranking;
+    robot.ranking = (((event.client.x - rect.left) / div.clientWidth) * 100).round();
   }
 
   setSpeed(MouseEvent event) {
     DivElement box = querySelector('#speedBox');
     Rectangle rect = box.getBoundingClientRect();
     Element div = event.target;
-    speed = (((event.client.x - rect.left) / div.clientWidth) * 100).round();
-    robot.speed = speed;
+    robot.speed = (((event.client.x - rect.left) / div.clientWidth) * 100).round();
   }
 
   setAgility(MouseEvent event) {
     DivElement box = querySelector('#agilityBox');
     Rectangle rect = box.getBoundingClientRect();
     Element div = event.target;
-    agility = (((event.client.x - rect.left) / div.clientWidth) * 100).round();
-    robot.agility = agility;
+    robot.agility = (((event.client.x - rect.left) / div.clientWidth) * 100).round();
   }
 
   LabelFunction rankLabelFunction;

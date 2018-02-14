@@ -31,4 +31,7 @@ class RobotDetailComponent implements OnInit {
   @override
   void ngOnInit() {}
 
+  xxxx() {
+//    robot.runtimeType.travelSpeedRange.asLabel;
+  }
 }

@@ -1,15 +1,24 @@
-<p class="addGoal" (click)="addGoal()">Add Goal</p>
 <reorder-list (reorder)="onReorder($event)">
+    <div class="list">
+        <span class="label">Start</span>
+        <span class="label">End</span>
+        <span class="label">Target</span>
+        <span class="label">Margin</span>
+        <span class="label">Count</span>
+        <span class="label"></span>
+        <span class="label"></span>
+        <span class="addGoal" (click)="addGoal()">add goal</span>
+    </div>
     <div class="list" *ngFor="let spec of specs" reorderItem>
         <span class="startAt" title="Number of seconds at which the goal starts">{{spec.startAt}}</span>
         <span class="endAt" title="Number of seconds at which the goal ends">{{spec.endAt}}</span>
         <span class="id">{{spec.id}}
-              <material-icon-tooltip type="help_outline">
-                {{spec.description}}
-              </material-icon-tooltip>
         </span>
         <span class="minMargin" title="">{{spec.minMargin}}</span>
         <span class="maxCount" title="">{{spec.maxCount}}</span>
+        <material-icon-tooltip type="help_outline">
+            {{spec.description}}
+        </material-icon-tooltip>
         <span class="edit" (click)="selectedSpec = spec">edit</span>
         <span class="delete" (click)="specs.remove(spec)">delete</span>
     </div>

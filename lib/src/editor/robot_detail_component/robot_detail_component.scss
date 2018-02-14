@@ -15,6 +15,7 @@ span {
 
 %label {
   @extend %cell;
+  font-size: 11pt;
   font-weight: bold;
   color: $mat-blue-700;
   display: inline-block;

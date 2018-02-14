@@ -13,6 +13,7 @@ dependencies:
   css_animation: "^0.1.8"
   quiver: "^0.25.0"
   path_finding: "^0.3.0+1"
+  clippy: "^0.2.0"
 
 dev_dependencies:
   angular_test: ^1.0.0

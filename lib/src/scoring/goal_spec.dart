@@ -1,5 +1,6 @@
 import 'autobot.dart';
 import 'model.dart' as up;
+import '../utils/index_db_service.dart';
 
 class GoalSpec {
   String id = '';
@@ -94,6 +95,34 @@ class GoalSpec {
     return GoalFactory
         .createGoal(this, new up.Robot(match.red, null))
         .description;
+  }
+}
+
+class Strategy implements Persistable {
+  String label = 'unnamed';
+  List<GoalSpec> goalSpecs = [];
+  String dbKey;
+
+  Map<String, dynamic> toJson() {
+    Map<String, dynamic> json = {};
+    List<Map<String, dynamic>> list = [];
+    for (GoalSpec goal in goalSpecs) {
+      list.add(goal.toJson());
+    }
+    json['label'] = label;
+    json['dbKey'] = dbKey;
+    json['goalSpecs'] = list;
+    return json;
+  }
+
+  void fromJson(Map<String, dynamic> json) {
+    label = json['label'] ?? 'unnamed';
+    dbKey = json['dbKey'];
+    goalSpecs.clear();
+    List<Map<String, dynamic>> _goals = json['goalSpecs'] ?? [];
+    for (Map<String, dynamic> goal in _goals) {
+      goalSpecs.add(new GoalSpec()..fromJson(goal));
+    }
   }
 }
 

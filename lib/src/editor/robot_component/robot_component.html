@@ -54,5 +54,11 @@
             </material-icon-tooltip>
         </p>
         <goal-list-component [specs]="robot.goalSpecs"></goal-list-component>
+        <material-expansionpanel id="stored-data-box"
+                name="Save and retrieve data"
+                secondaryText="Configure robots and strategies and reuse them later"
+                showSaveCancel="false">
+            <stored-data-component [robot]="robot"></stored-data-component>
+        </material-expansionpanel>
     </div>
 </div>

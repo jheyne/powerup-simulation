@@ -9,27 +9,27 @@
     </div>
     <div class="container">
         <div class="rowLabel"><span>Travel Speed</span> <span class="subtext">(centimeters per second)</span></div>
-        <input [value]="robot.travelSpeed.value"><input
+        <input [value]="robot.travelSpeed.value" [title]="robot.travelSpeedRange.asLabel"><input
             [value]="robot.travelSpeed.variationPercent"><input [value]="robot.travelSpeed.failurePercent">
     </div>
     <div class="container">
         <div class="rowLabel"><span>Turn</span> <span class="subtext">(milliseconds)</span></div>
-        <input [value]="robot.turn.value"><input
+        <input [value]="robot.turn.value" [title]="robot.turnRange.asLabel"><input
             [value]="robot.turn.variationPercent"><input [value]="robot.turn.failurePercent">
     </div>
     <div class="container">
         <div class="rowLabel"><span>Grasp Cube</span> <span class="subtext">(milliseconds)</span></div>
-        <input [value]="robot.graspCube.value"><input
+        <input [value]="robot.graspCube.value" [title]="robot.graspCubeRange.asLabel"><input
             [value]="robot.graspCube.variationPercent"><input [value]="robot.graspCube.failurePercent">
     </div>
     <div class="container">
         <div class="rowLabel"><span>Deliver Cubes Low</span> <span class="subtext">(milliseconds)</span></div>
-        <input [value]="robot.deliverCube.value"><input
+        <input [value]="robot.deliverCube.value" [title]="robot.deliverCubeRange.asLabel"><input
             [value]="robot.deliverCube.variationPercent"><input [value]="robot.deliverCube.failurePercent">
     </div>
     <div class="container">
         <div class="rowLabel"><span>Deliver Cubes High</span> <span class="subtext">(milliseconds)</span></div>
-        <input [value]="robot.deliverCubeHigh.value"><input
+        <input [value]="robot.deliverCubeHigh.value" [title]="robot.deliverCubeHighRange.asLabel"><input
             [value]="robot.deliverCubeHigh.variationPercent"><input [value]="robot.deliverCubeHigh.failurePercent">
     </div>
 

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:html';
 import 'dart:math';
 
+import '../utils/index_db_service.dart';
 import 'game_clock.dart';
 import 'goal_spec.dart';
 
@@ -353,7 +354,14 @@ class Variable {
   num variationPercent;
   num failurePercent;
 
-  Variable(this.value, this.variationPercent, this.failurePercent);
+//  Variable(this.value, this.variationPercent, this.failurePercent);
+  Variable();
+
+  Variable.from(num val, num variation, num failure) {
+    value = val;
+    variationPercent = variation;
+    failurePercent = failure;
+  }
 
   num get sampleValue {
     final num delta = random.nextInt(value * variationPercent ~/ 100);
@@ -370,6 +378,12 @@ class Variable {
     json['failure'] = failurePercent;
     return json;
   }
+
+  void fromJson(Map<String, dynamic> json) {
+    value = json['value'];
+    variationPercent = json['variation'];
+    failurePercent = json['failure'];
+  }
 }
 
 class VariableRange {
@@ -378,12 +392,20 @@ class VariableRange {
 
   VariableRange(this.worst, this.best);
 
+  bool get isBestSmaller => best.value < worst.value;
+
+  String get asLabel =>
+      'typically ${isBestSmaller ? best.value : worst.value} to ${isBestSmaller
+          ? worst.value
+          : best.value}';
+
   adjust(Variable variable, int rank) {
     variable.value = adjustRange(best.value, worst.value, rank);
-//    variable.variationPercent =
-//        adjustRange(best.variationPercent, worst.variationPercent, rank);
-//    variable.failurePercent =
-//        adjustRange(best.failurePercent, worst.failurePercent, rank);
+    print('Computed percentile: ${getPercentile(variable)}');
+    variable.variationPercent =
+        adjustRange(best.variationPercent, worst.variationPercent, rank);
+    variable.failurePercent =
+        adjustRange(best.failurePercent, worst.failurePercent, rank);
   }
 
   num adjustRange(num bestValue, num worstValue, int rank) {
@@ -391,61 +413,93 @@ class VariableRange {
     num delta = range * rank / 100;
     bool betterIsSmaller = bestValue < worstValue;
     var x = betterIsSmaller ? worstValue - delta : worstValue + delta;
-    print('Best $bestValue Worst $worstValue Delta: $delta Computed Value: $x');
+    print(
+        'Best $bestValue Worst $worstValue Delta: $delta Rank: $rank Computed Value: $x');
     return x.round();
+  }
+
+  num getPercentile(Variable variable) {
+    num range = (best.value - worst.value).abs();
+    bool betterIsSmaller = best.value < worst.value;
+    num adjustedValue =
+        variable.value - (betterIsSmaller ? best.value : worst.value);
+    num percentile = adjustedValue * 100 / range;
+    return betterIsSmaller ? 100 - percentile : percentile;
   }
 }
 
 typedef LocationService HasLocationService();
 
-class Robot {
+class Robot implements Persistable {
   String label = "unnamed";
+  String dbKey;
   Alliance alliance;
   HasLocationService hasLocationService;
-  String strategy;
+  String strategyLabel;
 
   /// in milliseconds
-  Variable graspCube = new Variable(3500, 60, 30);
-  static VariableRange graspCubeRange =
-      new VariableRange(new Variable(12000, 60, 80), new Variable(750, 20, 10));
+  Variable graspCube = new Variable.from(3500, 60, 30);
+  VariableRange graspCubeRange;
 
   /// in milliseconds
-  Variable turn = new Variable(3000, 60, 5);
-  static VariableRange turnRange =
-      new VariableRange(new Variable(5000, 60, 50), new Variable(750, 20, 5));
+  Variable turn = new Variable.from(3000, 60, 5);
+  VariableRange turnRange;
 
   /// in centimeter per second
-  Variable travelSpeed = new Variable(300, 60, 0);
-  static VariableRange travelSpeedRange =
-      new VariableRange(new Variable(50, 60, 30), new Variable(500, 20, 5));
+  Variable travelSpeed = new Variable.from(300, 60, 0);
+  VariableRange travelSpeedRange;
 
   /// in milliseconds
-  Variable deliverCube = new Variable(2000, 30, 30);
-  static VariableRange deliverCubeRange =
-      new VariableRange(new Variable(15000, 60, 30), new Variable(1000, 20, 5));
+  Variable deliverCube = new Variable.from(2000, 30, 30);
+  VariableRange deliverCubeRange;
 
   /// in milliseconds
-  Variable deliverCubeHigh = new Variable(9000, 30, 30);
-  static VariableRange deliverCubeHighRange =
-      new VariableRange(new Variable(25000, 60, 30), new Variable(3000, 20, 5));
+  Variable deliverCubeHigh = new Variable.from(9000, 30, 30);
+  VariableRange deliverCubeHighRange;
+
   int autonFailurePercent = 70;
+
+//  TODO integrate strategy into model
+  Strategy get strategy => new Strategy()
+    ..label = strategyLabel
+    ..goalSpecs = goalSpecs;
+
+  Robot(this.alliance, this.hasLocationService) {
+    graspCubeRange = new VariableRange(
+        new Variable.from(12000, 60, 80), new Variable.from(750, 20, 10));
+    turnRange =
+        new VariableRange(new Variable.from(5000, 60, 50), new Variable.from(750, 20, 5));
+    travelSpeedRange =
+        new VariableRange(new Variable.from(50, 60, 30), new Variable.from(500, 20, 5));
+    deliverCubeRange = new VariableRange(
+        new Variable.from(15000, 60, 30), new Variable.from(1000, 20, 5));
+    deliverCubeHighRange = new VariableRange(
+        new Variable.from(25000, 60, 30), new Variable.from(3000, 20, 5));
+  }
 
   List<GoalSpec> goalSpecs = [];
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
+    json['label'] = label;
     json['graspCube'] = graspCube.toJson();
     json['turn'] = turn.toJson();
     json['travelSpeed'] = travelSpeed.toJson();
     json['deliverCube'] = deliverCube.toJson();
     json['deliverCubeHigh'] = deliverCubeHigh.toJson();
     json['autonFailure'] = autonFailurePercent;
-    List<Map<String, dynamic>> specs = [];
-    for (GoalSpec spec in goalSpecs) {
-      specs.add(spec.toJson());
-    }
-    json['goalSpecs'] = specs;
+//    goalSpecs are stored separately as Strategy
     return json;
+  }
+
+  fromJson(Map<String, dynamic> json) {
+    label = json['label'];
+    graspCube = new Variable()..fromJson(json['graspCube'] ?? {});
+    turn = new Variable()..fromJson(json['turn'] ?? {});
+    travelSpeed = new Variable()..fromJson(json['travelSpeed'] ?? {});
+    deliverCube = new Variable()..fromJson(json['deliverCube'] ?? {});
+    deliverCubeHigh = new Variable()..fromJson(json['deliverCubeHigh'] ?? {});
+    autonFailurePercent = json['autonFailure'];
   }
 
   bool hasPowerCube = false;
@@ -461,8 +515,6 @@ class Robot {
   OnRobotMove onRobotMove = (bot, start, stop, doNothing) => null;
 
   doNothing() => null;
-
-  Robot(this.alliance, this.hasLocationService);
 
   crossLine() {
     if (!hasCrossedLine) {
@@ -563,6 +615,31 @@ class Robot {
     graspCubeRange.adjust(graspCube, rank);
     deliverCubeRange.adjust(deliverCube, rank);
     deliverCubeHighRange.adjust(deliverCubeHigh, rank);
+  }
+
+  int get agility {
+    num percentile = 0;
+    percentile += graspCubeRange.getPercentile(graspCube);
+    percentile += deliverCubeRange.getPercentile(deliverCube);
+    percentile += deliverCubeHighRange.getPercentile(deliverCubeHigh);
+    return percentile ~/ 3;
+  }
+
+  int get speed {
+    num percentile = 0;
+    percentile += travelSpeedRange.getPercentile(travelSpeed);
+    percentile += turnRange.getPercentile(turn);
+    return percentile ~/ 2;
+  }
+
+  int get ranking {
+    num percentile = 0;
+    percentile += travelSpeedRange.getPercentile(travelSpeed);
+    percentile += turnRange.getPercentile(turn);
+    percentile += graspCubeRange.getPercentile(graspCube);
+    percentile += deliverCubeRange.getPercentile(deliverCube);
+    percentile += deliverCubeHighRange.getPercentile(deliverCubeHigh);
+    return percentile ~/ 5;
   }
 }
 
