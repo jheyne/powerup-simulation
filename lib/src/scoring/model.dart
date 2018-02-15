@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:html';
 import 'dart:math';
 
-import '../utils/index_db_service.dart';
+import 'package:power_up_2018/src/services/index_db_service.dart';
 import 'game_clock.dart';
 import 'goal_spec.dart';
 

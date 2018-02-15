@@ -1,6 +1,6 @@
 import 'autobot.dart';
 import 'model.dart' as up;
-import '../utils/index_db_service.dart';
+import 'package:power_up_2018/src/services/index_db_service.dart';
 
 class GoalSpec {
   String id = '';

@@ -10,7 +10,7 @@ import '../scoring/autobot.dart';
 import '../scoring/game_clock.dart';
 import '../scoring/model.dart' as up;
 import '../scoring/goal_spec.dart';
-import '../utils/index_db_service.dart';
+import 'package:power_up_2018/src/services/index_db_service.dart';
 import '../editor/goal_component/goal_component.dart';
 import '../editor/goal_list_component/goal_list_component.dart';
 import '../editor/robot_component/robot_component.dart';

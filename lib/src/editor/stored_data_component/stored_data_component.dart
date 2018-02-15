@@ -3,7 +3,7 @@ import 'package:angular_components/angular_components.dart';
 
 import '../../scoring/model.dart';
 import '../../scoring/goal_spec.dart';
-import '../../utils/index_db_service.dart';
+import 'package:power_up_2018/src/services/index_db_service.dart';
 
 @Component(
     selector: 'stored-data-component',
