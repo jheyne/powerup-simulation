@@ -34,7 +34,6 @@ class StoredDataComponent implements OnInit {
   Map<String, dynamic> get selectedRobot => _selectedRobot;
 
   void set selectedRobot(Map<String, dynamic> map) {
-    print('selectedRobot: $map');
     _selectedRobot = map;
   }
 
@@ -49,15 +48,9 @@ class StoredDataComponent implements OnInit {
   @override
   void ngOnInit() {}
 
-  xxx() {
-    robot.strategyLabel;
-  }
-
   saveRobot() => _indexDbService.addRobot(robot);
 
   loadRobot() {
-    print('loading selected robot : $selectedRobot');
-    print('loading selected TYPE : ${selectedRobot.runtimeType}');
     robot.fromJson(selectedRobot);
   }
 

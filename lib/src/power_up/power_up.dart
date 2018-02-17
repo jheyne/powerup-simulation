@@ -1,20 +1,20 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:angular/angular.dart';
 import 'package:angular_components/angular_components.dart';
+import 'package:power_up_2018/src/services/index_db_service.dart';
 
 import '../cube_operations/cube_operations.dart';
-import '../field_diagram/field_diagram.dart';
-import '../scoring/autobot.dart';
-import '../scoring/game_clock.dart';
-import '../scoring/model.dart' as up;
-import '../scoring/goal_spec.dart';
-import 'package:power_up_2018/src/services/index_db_service.dart';
 import '../editor/goal_component/goal_component.dart';
 import '../editor/goal_list_component/goal_list_component.dart';
 import '../editor/robot_component/robot_component.dart';
+import '../field_diagram/field_diagram.dart';
 import '../page/main_page_component/main_page_component.dart';
+import '../scoring/autobot.dart';
+import '../scoring/game_clock.dart';
+import '../scoring/goal_spec.dart';
+import '../scoring/model.dart' as up;
+import '../services/robot_service.dart';
 
 @Component(
   selector: 'power-up',
@@ -34,9 +34,13 @@ import '../page/main_page_component/main_page_component.dart';
   providers: const [],
 )
 class PowerUpComponent implements OnInit {
-  up.Match match;
-  up.Field field;
-  up.Robot robot;
+  final RobotService botz;
+
+  up.Match get match => botz.match;
+
+  up.Field get field => botz.field;
+
+  up.Robot get robot => botz.robotRed1;
   IndexDbService _indexDbService;
 
   String get state => match.gameClock.state.toString().split('.').last;
@@ -44,97 +48,72 @@ class PowerUpComponent implements OnInit {
   @ViewChild(FieldDiagram)
   FieldDiagram fieldDiagram;
 
-  PowerUpComponent(this._indexDbService) {
-    newMatch();
-  }
+  PowerUpComponent(this._indexDbService, this.botz);
 
   @override
   Future<Null> ngOnInit() async {
-    newMatch();
+    botz.locationSupplier = () => fieldDiagram;
     _indexDbService.open();
+    newMatch();
   }
 
   newMatch() {
-    if (fieldDiagram != null) {
-      fieldDiagram.resetRobots();
-    }
-    match = new up.Match();
-    field = new up.Field(match);
-    robot = new up.Robot(match.red, ()=>fieldDiagram);
-    if (fieldDiagram != null) {
+    print('power_up.newMatch');
+    fieldDiagram.resetRobots();
+    botz.newMatch();
+    for (up.Robot robot in botz.robots) {
       fieldDiagram.addRobot(robot);
-      fieldDiagram.ngAfterViewChecked();
     }
+    fieldDiagram.placeRobots();
+    fieldDiagram.initializeScaleAndSwitches();
   }
 
   startAutoBot() {
-    nearFieldAutoBot(match.blue);
-//    midFieldAutoBot(match.blue);
-//    farFieldAutoBot(match.blue);
-
-    nearFieldAutoBot(match.red);
-//    midFieldAutoBot(match.red);
-//    farFieldAutoBot(match.red);
-
-    fieldDiagram.placeRobots();
+    print('power_up.startAutoBot');
+    List<up.Robot> bots = botz.robots;
+    if (botz.manualDriveRed1) {
+      bots.remove(botz.robotRed1);
+    }
+    for (up.Robot robot in bots) {
+      registerAutobot(new AutoBot(robot));
+    }
+    match.gameClock.start();
   }
 
-  void nearFieldAutoBot(up.Alliance alliance) {
-    up.Robot bot = new up.Robot(alliance, ()=>fieldDiagram)..label = 'near field';
-    AutoBot autobot = AutoBotBuilder.sampleNearField(bot);
-    registerRobot(bot, autobot, alliance);
-  }
-
-  void registerRobot(up.Robot bot, AutoBot autobot, up.Alliance alliance) {
-    fieldDiagram.addRobot(bot);
+  void registerAutobot(AutoBot autobot) {
     listen(State state) {
       switch (state) {
         case State.INIT:
           break;
         case State.AUTON:
+          print('${autobot.robot.label} is starting auton');
           autobot.runAuto();
           break;
         case State.TELEOP:
           break;
         case State.DONE:
+          print('out of time for ${autobot.robot.label}');
+          autobot.cancelled = true;
           break;
       }
     }
-
-    alliance.match.gameClock.addStateChangeListener(listen);
-    print(JSON.encode(bot.toJson()));
-    print(autobot.toJson());
-    print(JSON.encode(autobot.toJson()));
-    print(autobot.description);
-  }
-
-  void midFieldAutoBot(up.Alliance alliance) {
-    var bot = new up.Robot(alliance, ()=>fieldDiagram)..label = 'mid field';
-    AutoBot autobot = AutoBotBuilder.sampleMidField(bot);
-    registerRobot(bot, autobot, alliance);
-  }
-
-  void farFieldAutoBot(up.Alliance alliance) {
-    var bot = new up.Robot(alliance, ()=>fieldDiagram)..label = 'far field';
-    AutoBot autobot = AutoBotBuilder.sampleFarField(bot);
-    registerRobot(bot, autobot, alliance);
+    print('addStateChangeListener ${autobot.robot.label}');
+    autobot.robot.alliance.match.gameClock.addStateChangeListener(listen);
   }
 
   List<GoalSpec> get specs => [selectedSpec, selectedSpec];
 
-  GoalSpec selectedSpec = new GoalSpec()..fromJson({
-    "startAt": 0,
-    "endAt": 150,
-    "type": "BalanceGoal",
-    "goalType": "BalancePlate",
-    "priority": 10,
-    "sources": [
-      "6 by my switch",
-      "my stack of 10"
-    ],
-    "id": "my switch",
-    "minMargin": 2,
-    "maxCount": 20,
-    "target": "my switch"
-  });
+  GoalSpec selectedSpec = new GoalSpec()
+    ..fromJson({
+      "startAt": 0,
+      "endAt": 150,
+      "type": "BalanceGoal",
+      "goalType": "BalancePlate",
+      "priority": 10,
+      "sources": ["6 by my switch", "my stack of 10"],
+      "id": "my switch",
+      "minMargin": 2,
+      "maxCount": 20,
+      "target": "my switch"
+    });
 }

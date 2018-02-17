@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:html';
 import 'dart:math' as math;
 
@@ -53,12 +54,15 @@ class FieldDiagram implements OnInit, AfterViewChecked, up.LocationService {
 
   @override
   ngAfterViewChecked() {
+    initializeScaleAndSwitches();
+  }
+
+  void initializeScaleAndSwitches() {
     List<BalanceComponent> balanceComponents = [
       topSwitch,
       midScale,
       bottomSwitch
     ];
-//    print('Components are $balanceComponents');
     for (BalanceComponent b in balanceComponents) {
       b.ngOnInit();
     }
@@ -88,7 +92,6 @@ class FieldDiagram implements OnInit, AfterViewChecked, up.LocationService {
   up.Location getLocation(up.HasId item, up.Robot robot) {
     Element parent = querySelector('#field');
     var id = item.id(robot);
-    print('ID of getLocation: $id');
     Element element = findElement(id);
     element.classes.add('findme');
     Rectangle rect = offsetFromDiagram(element);
@@ -106,7 +109,7 @@ class FieldDiagram implements OnInit, AfterViewChecked, up.LocationService {
 
   /// calculate how long the move should take, move the robot, and disable input until finished
   onRobotMove(up.Robot bot, math.Point start, math.Point end, whenComplete) {
-    print('Begin at $start go to $end');
+    print('onRobotMove start $start end $end');
     final num distance =
         math.sqrt(math.pow(start.x - end.x, 2) + math.pow(start.y - end.y, 2)) *
             DISPLAY_SCALE;
@@ -115,12 +118,9 @@ class FieldDiagram implements OnInit, AfterViewChecked, up.LocationService {
     // TODO need to know operation being performed
     final num graspCube = bot.graspCube.sampleValue;
     final int duration = (turn + travelTime + graspCube).toInt();
-//    print('Turn: $turn Travel Time: $travelTime Grasp ball: $graspCube');
-//    print('Distance: $distance Duration: $duration');
 
     Element element = _robotMap[bot];
     math.Rectangle fieldRect = querySelector('#field').getBoundingClientRect();
-//    print('Start: $start End: $end');
     Map<int, Map<String, Object>> keyframes = {};
     try {
       keyframes = PathPlanner.instance.buildKeyFrames(start, end, fieldRect);
@@ -131,6 +131,10 @@ class FieldDiagram implements OnInit, AfterViewChecked, up.LocationService {
     }
     // set the end in case of rounding errors
     keyframes[100] = {'left': '${end.x}px', 'top': '${end.y}px'};
+    // avoid error if too many keyframes
+    for (int i = 101; i < 110; i++) {
+      keyframes.remove(i);
+    }
     var animation = new CssAnimation.keyframes(keyframes);
     animationComplete() {
       whenComplete();
@@ -160,11 +164,20 @@ class FieldDiagram implements OnInit, AfterViewChecked, up.LocationService {
     querySelector('#field').children.add(added);
     _robotMap[robot] = added;
     robot.onRobotMove = onRobotMove;
-    robot.currentLocation = new Point(
-        added.getBoundingClientRect().left, added.getBoundingClientRect().top);
+    new Timer(new Duration(milliseconds: 100), () {
+      var myRect = added.getBoundingClientRect();
+      var parentRect = added.parent.getBoundingClientRect();
+      var x = myRect.left - parentRect.left;
+      var y = myRect.top - parentRect.top;
+      print('${robot.label} boundingClientRect $x @ $y');
+      robot.currentLocation =
+          new Point(x, y);
+    });
   }
 
   resetRobots() {
+    redBots = 0;
+    blueBots = 0;
     _robotMap.forEach((robot, element) => element.remove());
     _robotMap.clear();
   }

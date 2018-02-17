@@ -92,32 +92,20 @@ class BalancePlate extends PowerCubeTarget {
   int cubeCount = 0;
   final Balance balance;
   final Match match;
-  Alliance _alliance;
+  Alliance alliance;
 
   int get pointMargin => cubeCount - otherPlate.cubeCount;
 
-  void set alliance(Alliance a) {
-//    if (!(isRed && a.isRed)) {
-//      otherPlate.alliance = a;
-//      return;
-//    }
-    print('alliance is changing from $_alliance to $a');
-    _alliance = a;
-  }
 
   BalancePlate get otherPlate => isRed ? balance.bluePlate : balance.redPlate;
 
   Color get color => isRed ? Color.RED : Color.BLUE;
 
-  Alliance get alliance {
-    return _alliance;
-  }
 
   bool get isRed => balance.redPlate == this;
 
   _addPoints() {
     int points = match.gameClock.isAuton ? 2 : 1;
-//    print('About to invoke multiplier ${alliance.color}');
     if (balance.pointMultiplier(alliance)) points = points * 2;
     alliance.tally.addPoints(points);
   }
@@ -126,7 +114,6 @@ class BalancePlate extends PowerCubeTarget {
 
   addCube(Alliance alliance, [Robot robot]) {
     cubeCount++;
-    print('cube count is now $cubeCount for ${id(robot)}');
     _addPoints();
     balance.checkOwnership();
   }
@@ -401,7 +388,6 @@ class VariableRange {
 
   adjust(Variable variable, int rank) {
     variable.value = adjustRange(best.value, worst.value, rank);
-    print('Computed percentile: ${getPercentile(variable)}');
     variable.variationPercent =
         adjustRange(best.variationPercent, worst.variationPercent, rank);
     variable.failurePercent =
@@ -413,8 +399,8 @@ class VariableRange {
     num delta = range * rank / 100;
     bool betterIsSmaller = bestValue < worstValue;
     var x = betterIsSmaller ? worstValue - delta : worstValue + delta;
-    print(
-        'Best $bestValue Worst $worstValue Delta: $delta Rank: $rank Computed Value: $x');
+//    print(
+//        'Best $bestValue Worst $worstValue Delta: $delta Rank: $rank Computed Value: $x');
     return x.round();
   }
 

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'game_clock.dart';
+import 'goal_spec.dart';
 import 'model.dart';
 
 //class AutoBot extends Robot {
@@ -36,33 +37,59 @@ class AutoBot {
 
   List<GoalStrategy> strategies = [];
 
-  AutoBot(this.robot);
-
-  runAuto() async {
-    for (GoalStrategy strategy in strategies) {
-      print('Running strategy: $strategy');
-      await runStrategy(strategy);
+  GoalStrategy get consolidatedStrategy {
+    if (strategies.length == 1) {
+      return strategies.first;
     }
+    final List<TargetGoal> goals = [];
+    for (GoalStrategy strategy in strategies) {
+      goals.addAll(strategy.goals);
+    }
+    return new GoalStrategy(goals)..label = 'Combined';
   }
 
-  Future<bool> runStrategy(GoalStrategy goal) async {
-    Completer<bool> completer = new Completer();
-    if (!(goal is GoalStrategy)) {
-      print('GoalStrategy is unexpected: ${goal.runtimeType}');
+  AutoBot(this.robot) {
+    List<TargetGoal> goals = [];
+    for (GoalSpec spec in robot.strategy.goalSpecs) {
+      print('Robot: ${robot.label}');
+      print('Spec: ${spec.toJson()}');
+      var goal = GoalFactory.createGoal(spec, robot);
+      print('Goal: ${goal.toJson()}');
+      goals.add(goal);
     }
-    while (goal != null && goal.hasSources) {
-      if (!GameClock.instance.isGameActive) {
-        completer.complete(false);
-      }
-      await goal.fetchCube(robot);
-      if (!GameClock.instance.isGameActive) {
-        completer.complete(false);
-      }
-      if (robot.hasPowerCube) {
-        await goal.placeCube(robot);
+    GoalStrategy strategy = new GoalStrategy(goals);
+    strategy.label = robot.strategy.label;
+    strategies.add(strategy);
+  }
+
+  runAuto() {
+    runStrategy(consolidatedStrategy, 0);
+  }
+
+  bool cancelled = false;
+
+  FutureOr<bool> runStrategy(GoalStrategy goal, final int count) async {
+    if (cancelled) return false;
+    if (robot.hasPowerCube) {
+      print('${robot.label} place cube: ${count}');
+      await goal.placeCube(robot);
+    } else {
+      if (goal.hasSources) {
+        print('${robot.label} fetch cube: ${count}');
+        try {
+          await goal.fetchCube(robot);
+        } catch (NO_SOURCE_GOAL) {
+          return false;
+        }
+      } else {
+        // do defense
+        print('${robot.label} do defense: ${count}');
+        return false;
       }
     }
-    return completer.future;
+    new Timer(
+        new Duration(milliseconds: 10), () => runStrategy(goal, count + 1));
+    return true;
   }
 
   List<Map<String, dynamic>> toJson() {
@@ -81,6 +108,8 @@ class AutoBot {
     return list.join('\n\n');
   }
 }
+
+final NO_SOURCE_GOAL = 'No source goal';
 
 typedef PowerCubeTarget GetTarget();
 typedef PowerCubeSource GetSource();
@@ -128,9 +157,11 @@ class GoalStrategy {
       SourceGoal goal = nextSourceGoal;
       if (goal != null) {
         var source = goal.item;
-        print('Source $source : ${source.id(robot)}');
         await robot.getCube(source);
         return robot.hasPowerCube;
+      } else {
+        print('Robot ${robot.label} has no more source goals');
+        throw NO_SOURCE_GOAL;
       }
     }
     return true;
@@ -142,6 +173,10 @@ class GoalStrategy {
       if (goal != null) {
         var target = goal.item;
         return await robot.putCube(target);
+      } else {
+        print('${robot.label} has no place to put its cube');
+        // avoid looping
+        robot.hasPowerCube = false;
       }
     }
     return true;
@@ -164,8 +199,8 @@ class GoalStrategy {
 
   TargetGoal get nextTargetGoal {
     int currentSeconds = GameClock.instance.currentSecond;
-    var applies =
-        goals.where((goal) => goal.applies && goal.inTimeRange(currentSeconds));
+    var applies = goals.where((goal) =>
+        goal.hasSources && goal.applies && goal.inTimeRange(currentSeconds));
     if (applies.isNotEmpty) {
       var atRisk = applies.where((goal) => goal.isAtRisk(currentSeconds));
       byPriority(TargetGoal prev, TargetGoal next) {
@@ -275,7 +310,6 @@ abstract class Goal<T> {
   bool get applies;
 
   bool inTimeRange(int currentSeconds) {
-    print('inTimeRange: $currentSeconds start: $startAt end: $endAt');
     return startAt <= currentSeconds && currentSeconds <= endAt;
   }
 
@@ -285,7 +319,7 @@ abstract class Goal<T> {
     json['endAt'] = endAt;
     json['type'] = runtimeType.toString();
     json['goalType'] = item.runtimeType.toString();
-    json['priority'] = priority;
+    json['priority'] = priority ?? 1;
     _buildJson(json);
     return json;
   }
@@ -307,7 +341,8 @@ abstract class Goal<T> {
   }
 
   buildDescription(phrases) {
-    phrases.add('Between $startAt and $endAt seconds (with priority $priority)');
+    phrases
+        .add('Between $startAt and $endAt seconds (with priority $priority)');
     _buildDescription(phrases);
   }
 

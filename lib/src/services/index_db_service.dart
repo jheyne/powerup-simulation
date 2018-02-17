@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:html';
 import 'dart:indexed_db';
+import 'dart:convert';
 
 import "package:angular/angular.dart";
 
@@ -36,7 +37,6 @@ class IndexDbService {
   }
 
   Future _loadFromDB(Database db) {
-    print('Loading from DB: $db');
     _db = db;
     _loadRobots(db);
     return _loadStrategies(db);
@@ -51,13 +51,10 @@ class IndexDbService {
     cursors.listen((cursor) {
       Map<String, dynamic> map = new Map.from(cursor.value);
       map['dbKey'] = cursor.key;
-      print('loaded key: ${cursor.key} value: $map');
       robots.add(map);
     });
 
     return cursors.length.then((_) {
-      print('Robots length: ${robots.length}');
-      print('These are the robots: $robots');
       return robots.length;
     });
   }
@@ -71,28 +68,24 @@ class IndexDbService {
     cursors.listen((cursor) {
       Map<String, dynamic> map = new Map.from(cursor.value);
       map['dbKey'] = cursor.key;
-      print('loaded key: ${cursor.key} value: $map');
+      print('Strategy: ${JSON.encode(map)}');
       strategies.add(map);
     });
 
     return cursors.length.then((_) {
-      print('Strategies length: ${strategies.length}');
       return strategies.length;
     });
   }
 
   Future<Robot> addRobot(Robot robot) {
-    print('adding robot ${robot.label}');
     return add<Robot>(robot, robots, ROBOT_STORE);
   }
 
   Future<Map<String, dynamic>> deleteRobot(Map<String, dynamic> map) {
-    print('delete robot ${map['label']}');
     return delete(map, robots, ROBOT_STORE);
   }
 
   Future<Map<String, dynamic>> deleteStrategy(Map<String, dynamic> map) {
-    print('delete strategy ${map['label']}');
     return delete(map, strategies, STRATEGY_STORE);
   }
 
@@ -102,11 +95,9 @@ class IndexDbService {
 
   Future<T> add<T extends Persistable>(T persistable, List<Map<String, dynamic>> cache, String storeName) {
     Map<String, dynamic> map = persistable.toJson();
-    print('map to persist $map');
     Transaction trans = _db.transaction(storeName, 'readwrite');
     ObjectStore store = trans.objectStore(storeName);
     store.add(map).then((addedKey) => map['dbKey'] = addedKey);
-    print('the added key is ${map['dbKey']}');
     return trans.completed.then((Database db) {
       cache.add(map);
       persistable.dbKey = map['dbKey'];
@@ -115,7 +106,6 @@ class IndexDbService {
   }
 
   Future<Map<String, dynamic>> delete(Map<String, dynamic> map, List<Map<String, dynamic>> cache, String storeName) {
-    print('map to delete $map');
     Transaction trans = _db.transaction(storeName, 'readwrite');
     trans.objectStore(storeName).delete(map['dbKey']);
     return trans.completed.then((Database db) {

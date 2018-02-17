@@ -16,7 +16,7 @@
             </div>
         </div>
         <div class="remainingTime">
-            <div >
+            <div>
                 Remaining Time: {{150 - match.gameClock.currentSecond}}
             </div>
         </div>
@@ -44,7 +44,6 @@
                 </material-button>
                 <button-space></button-space>
             </div>
-            <material-button class="start" raised clear-size (trigger)="match.gameClock.start()">START</material-button>
         </div>
 
         <div *ngIf="match.gameClock.isAuton">
@@ -60,8 +59,12 @@
             <material-button (trigger)="newMatch()">New match</material-button>
         </div>
 
-        <div class="list">
-            <material-button class="start" raised clear-size (trigger)="startAutoBot()">START AUTOBOT</material-button>
+        <div class="list" *ngIf="!match.gameClock.isInit">
+            <material-button class="start" raised clear-size (trigger)="match.gameClock.cancel()">CANCEL
+            </material-button>
+        </div>
+        <div class="list" *ngIf="match.gameClock.isInit">
+            <material-button class="start" raised clear-size (trigger)="startAutoBot()">START</material-button>
         </div>
         <div>
             <main-page-component></main-page-component>

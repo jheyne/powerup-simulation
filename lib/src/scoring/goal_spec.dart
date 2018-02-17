@@ -64,7 +64,7 @@ class GoalSpec {
     return json;
   }
 
-  fromJson(Map<String, dynamic> json) {
+  fromJson(Map<String, dynamic> json, [bool isRed = true]) {
     id = json['id'] ?? json['target'];
     if (id == 'top-switch') {
       id = 'opposite switch';
@@ -76,18 +76,28 @@ class GoalSpec {
     startAt = json['startAt'];
     endAt = json['endAt'];
     priority = json['priority'];
-    List<String> _sources = json['sources'] ?? [];
-    int replaceMe = _sources.indexOf('red-6-source');
-    if (replaceMe >= 0) {
-      _sources[replaceMe] = '6 by my switch';
+    final List<String> convertedSources = [];
+    for (String source in json['sources'] ?? []) {
+      convertedSources.add(convertSourceId(source, isRed));
     }
-    replaceMe = _sources.indexOf('red-10-source');
-    if (replaceMe >= 0) {
-      _sources[replaceMe] = 'my stack of 10';
-    }
-    sources = _sources;
+    sources = convertedSources;
     minMargin = json['minMargin'];
     maxCount = json['maxCount'];
+  }
+
+  /// converting from obsolete models
+  @deprecated
+  String convertSourceId(String id, bool isRed) {
+    if(id == 'portal-red-right') return 'portal right';
+    if(id == 'portal-red-left') return 'portal left';
+    if(id == 'blue-6-source') return !isRed ? '6 by my switch' : '6 by opposite switch';
+    if(id == 'portal-blue-right') return 'portal right';
+    if(id == 'portal-blue-left') return 'portal left';
+
+    if(id == 'red-6-source') return isRed ? '6 by my switch' : '6 by opposite switch';
+    if(id == 'red-10-source') return 'my stack of 10';
+    if(id == 'blue-10-source') return 'my stack of 10';
+    return id;
   }
 
   String get description {
@@ -162,8 +172,8 @@ class GoalFactory {
     var alliance = robot.alliance;
     var target = alliance.match.scale;
     var goal = new BalanceGoal(() => alliance.isRed
-        ? alliance.match.scale.redPlate
-        : alliance.match.scale.bluePlate)
+        ? target.redPlate
+        : target.bluePlate)
       ..maxCount = spec.maxCount
       ..minMargin = spec.minMargin;
     _populateSharedValues(goal, spec, alliance);
@@ -182,7 +192,7 @@ class GoalFactory {
   static void _populateSharedValues(
       TargetGoal goal, GoalSpec spec, up.Alliance alliance) {
     goal
-      ..priority = spec.priority
+      ..priority = spec.priority ?? 1
       ..startAt = spec.startAt
       ..endAt = spec.endAt;
     for (String source in spec.sources) {
@@ -191,7 +201,21 @@ class GoalFactory {
   }
 
   static GetSource getSource(String id, up.Alliance alliance) {
+    const sourceList = const [
+      'portal left',
+      'portal right',
+      '6 by my switch',
+      '6 by opposite switch',
+      'my stack of 10'
+    ];
     up.PowerCubeSource cubeSource = null;
+    if (id.contains('6')) {
+      cubeSource = id.contains('my')
+          ? alliance.allianceSource
+          : alliance.oppositeAlliance.allianceSource;
+    } else if (id.contains('10')) {
+      cubeSource = alliance.switchSource;
+    } else
     if (id.contains('portal')) {
       if (id.contains('left')) {
         cubeSource =
@@ -200,14 +224,6 @@ class GoalFactory {
         cubeSource =
             alliance.isRed ? alliance.portalRight : alliance.portalLeft;
       }
-    } else if (id.contains('6')) {
-      cubeSource = alliance.isRed
-          ? alliance.allianceSource
-          : alliance.oppositeAlliance.allianceSource;
-    } else if (id.contains('10')) {
-      cubeSource = alliance.isRed
-          ? alliance.switchSource
-          : alliance.oppositeAlliance.switchSource;
     }
     return () => cubeSource;
   }

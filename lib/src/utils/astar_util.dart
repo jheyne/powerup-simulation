@@ -49,7 +49,6 @@ class PathPlanner {
     grid.diagonalMovement = DiagonalMovement.WithOneObstruction;
     PointNode start = grid.nodeFromPoint(scalePoint(from, rectangle));
     PointNode goal = grid.nodeFromPoint(scalePoint(to, rectangle));
-//    print('Start Node: $start Goal Node: $goal');
     AStarFinder aStarFinder = new AStarFinder(grid);
     List<PointNode> path = aStarFinder.pathFind(start, goal);
     return path;
@@ -62,7 +61,6 @@ class PathPlanner {
     List<PointNode> nodes = findPath(from, to, rectangle);
     keyframes[0] = buildKeyframe(nodes.first, rectangle);
     keyframes[100] = buildKeyframe(nodes.last, rectangle);
-//    int interval = max(1, ((nodes.length - 2) / 18).floor().toInt());
     num interval = max(1, (100 / (nodes.length - 1)));
     for (int i = 1; i < nodes.length - 1; i++) {
       keyframes[(i * interval).floor().toInt()] = buildKeyframe(nodes[i], rectangle);

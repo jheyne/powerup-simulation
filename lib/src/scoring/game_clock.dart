@@ -22,10 +22,12 @@ class GameClock {
 
   Set<StateChange> stateChangedListeners = new Set();
 
-  addStateChangeListener(StateChange function) => stateChangedListeners.add(function);
+  addStateChangeListener(StateChange function) =>
+      stateChangedListeners.add(function);
+
+  Timer secondTimer;
 
   start() {
-//    GameClock.instance = this;
     currentSecond = 0;
     incrementTime(Timer timer) {
       currentSecond++;
@@ -35,7 +37,7 @@ class GameClock {
       }
     }
 
-    new Timer.periodic(new Duration(seconds: 1), incrementTime);
+    secondTimer = new Timer.periodic(new Duration(seconds: 1), incrementTime);
     startAutonomous();
   }
 
@@ -47,6 +49,11 @@ class GameClock {
 
   bool get isDone => state == State.DONE;
 
+  cancel() {
+    secondTimer.cancel();
+    state = State.DONE;
+  }
+
   startAutonomous() {
     state = State.AUTON;
     new Timer(new Duration(seconds: 15), startTeleop);
@@ -57,13 +64,9 @@ class GameClock {
     new Timer(new Duration(minutes: 2, seconds: 15), endGame);
   }
 
-  endGame() {
-    state = State.DONE;
-  }
+  endGame() => state = State.DONE;
 
-  reset() {
-    state = State.INIT;
-  }
+  reset() => state = State.INIT;
 
   bool get isGameActive => isAuton || isTeleop;
 }
