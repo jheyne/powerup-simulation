@@ -101,19 +101,4 @@ class PowerUpComponent implements OnInit {
     autobot.robot.alliance.match.gameClock.addStateChangeListener(listen);
   }
 
-  List<GoalSpec> get specs => [selectedSpec, selectedSpec];
-
-  GoalSpec selectedSpec = new GoalSpec()
-    ..fromJson({
-      "startAt": 0,
-      "endAt": 150,
-      "type": "BalanceGoal",
-      "goalType": "BalancePlate",
-      "priority": 10,
-      "sources": ["6 by my switch", "my stack of 10"],
-      "id": "my switch",
-      "minMargin": 2,
-      "maxCount": 20,
-      "target": "my switch"
-    });
 }

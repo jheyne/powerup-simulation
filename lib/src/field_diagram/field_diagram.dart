@@ -7,6 +7,7 @@ import 'package:css_animation/css_animation.dart';
 
 import '../balance_component/balance_component.dart';
 import '../scoring/model.dart' as up;
+import '../scoring/game_clock.dart';
 import '../utils/astar_util.dart';
 
 @Component(
@@ -136,9 +137,11 @@ class FieldDiagram implements OnInit, AfterViewChecked, up.LocationService {
       keyframes.remove(i);
     }
     var animation = new CssAnimation.keyframes(keyframes);
+    AnimationCanceller canceller = new AnimationCanceller(robot, element, animation);
     animationComplete() {
       whenComplete();
       animation.destroy();
+      canceller.stopMonitoringEndGame();
     }
 
     animation.apply(element,
@@ -199,4 +202,32 @@ class FieldDiagram implements OnInit, AfterViewChecked, up.LocationService {
       }
     });
   }
+}
+
+class AnimationCanceller {
+  final up.Robot robot;
+  final Element element;
+  final CssAnimation animation;
+
+  AnimationCanceller(this.robot, this.element, this.animation) {
+    registerForEndGame();
+  }
+
+  registerForEndGame() {
+    robot.alliance.match.gameClock.addStateChangeListener(stateChange);
+  }
+
+  stateChange(State state) {
+    if(state == State.DONE) {
+      element.style.animationPlayState = 'paused';
+      print('destroying animation for ${robot.label}');
+      animation.destroy;
+      stopMonitoringEndGame();
+    }
+  }
+
+  void stopMonitoringEndGame() {
+    robot.alliance.match.gameClock.removeStateChangeListener(stateChange);
+  }
+
 }

@@ -4,34 +4,6 @@ import 'game_clock.dart';
 import 'goal_spec.dart';
 import 'model.dart';
 
-//class AutoBot extends Robot {
-//  AutoBot(Alliance alliance, LocationService locationService)
-//      : super(alliance, locationService);
-//}
-
-class AutoBotBuilder {
-  static AutoBot sampleNearField(Robot robot) {
-    AutoBot autoBot = new AutoBot(robot);
-    autoBot.strategies.add(GoalBuilder.nearField(robot.alliance,
-        vaultMargin: 3, vaultMax: 3, switchMargin: 2, includeScale: true));
-    return autoBot;
-  }
-
-  static AutoBot sampleMidField(Robot robot) {
-    AutoBot autoBot = new AutoBot(robot);
-    autoBot.strategies
-        .add(GoalBuilder.midField(robot.alliance, switchMargin: 1));
-    return autoBot;
-  }
-
-  static AutoBot sampleFarField(Robot robot) {
-    AutoBot autoBot = new AutoBot(robot);
-    autoBot.strategies
-        .add(GoalBuilder.farField(robot.alliance, switchMargin: 1));
-    return autoBot;
-  }
-}
-
 class AutoBot {
   Robot robot;
 
@@ -63,12 +35,15 @@ class AutoBot {
   }
 
   runAuto() {
-    runStrategy(consolidatedStrategy, 0);
+    // TODO pre load bot
+    _runStrategy(consolidatedStrategy, 0);
   }
 
   bool cancelled = false;
 
-  FutureOr<bool> runStrategy(GoalStrategy goal, final int count) async {
+  FutureOr<bool> _runStrategy(GoalStrategy goal, final int count) async {
+    int waitMilliseconds = 10;
+    int counterIncrement = 1;
     if (cancelled) return false;
     if (robot.hasPowerCube) {
       print('${robot.label} place cube: ${count}');
@@ -79,7 +54,13 @@ class AutoBot {
         try {
           await goal.fetchCube(robot);
         } catch (NO_SOURCE_GOAL) {
-          return false;
+          if (!robot.alliance.match.gameClock.isDone) {
+            /// if the game is not done, wait to see if something becomes available
+            waitMilliseconds = 500;
+            counterIncrement = 0;
+          } else {
+            return false;
+          }
         }
       } else {
         // do defense
@@ -88,7 +69,7 @@ class AutoBot {
       }
     }
     new Timer(
-        new Duration(milliseconds: 10), () => runStrategy(goal, count + 1));
+        new Duration(milliseconds: waitMilliseconds), () => _runStrategy(goal, count + counterIncrement));
     return true;
   }
 
@@ -111,9 +92,12 @@ class AutoBot {
 
 final NO_SOURCE_GOAL = 'No source goal';
 
+/// Virtualizes accessing cube targets
 typedef PowerCubeTarget GetTarget();
+/// Virtualizes accessing cube sources
 typedef PowerCubeSource GetSource();
 
+/// Encapsulates a named list of goals
 class GoalStrategy {
   String label = "nameless";
 
@@ -154,7 +138,7 @@ class GoalStrategy {
 
   FutureOr<bool> fetchCube(Robot robot) async {
     if (!robot.hasPowerCube) {
-      SourceGoal goal = nextSourceGoal;
+      SourceGoal goal = _nextSourceGoal;
       if (goal != null) {
         var source = goal.item;
         await robot.getCube(source);
@@ -169,7 +153,7 @@ class GoalStrategy {
 
   FutureOr<bool> placeCube(Robot robot) async {
     if (robot.hasPowerCube) {
-      TargetGoal goal = nextTargetGoal;
+      TargetGoal goal = _nextTargetGoal;
       if (goal != null) {
         var target = goal.item;
         return await robot.putCube(target);
@@ -182,11 +166,11 @@ class GoalStrategy {
     return true;
   }
 
-  SourceGoal get nextSourceGoal {
-    TargetGoal target = nextTargetGoal;
+  SourceGoal get _nextSourceGoal {
+    TargetGoal target = _nextTargetGoal;
     if (target != null) {
       for (SourceGoal source in target.sources) {
-        if (source.item.count > 0) return p(source);
+        if (source.item.count > 0) return source;
       }
     }
     return null;
@@ -197,10 +181,11 @@ class GoalStrategy {
     return t;
   }
 
-  TargetGoal get nextTargetGoal {
+  TargetGoal get _nextTargetGoal {
     int currentSeconds = GameClock.instance.currentSecond;
     var applies = goals.where((goal) =>
         goal.hasSources && goal.applies && goal.inTimeRange(currentSeconds));
+    print('Applies: $applies');
     if (applies.isNotEmpty) {
       var atRisk = applies.where((goal) => goal.isAtRisk(currentSeconds));
       byPriority(TargetGoal prev, TargetGoal next) {
@@ -208,95 +193,11 @@ class GoalStrategy {
       }
 
       if (atRisk.isNotEmpty) {
-        return p(atRisk.reduce(byPriority));
+        return atRisk.reduce(byPriority);
       }
-      return p(applies.reduce(byPriority));
+      return applies.reduce(byPriority);
     }
     return null;
-  }
-}
-
-class GoalBuilder {
-  static GoalStrategy nearField(Alliance ally,
-      {int vaultMargin: 3,
-      vaultMax: 9,
-      int switchMargin: 2,
-      bool includeScale: false,
-      int scaleMargin: 1,
-      int scaleMax: 2}) {
-    var switchGoal = getBalance(ally, ally.switch_, minMargin: switchMargin)
-      ..priority = 10
-      ..addSource(getSource(ally.switchSource))
-      ..addSource(getSource(ally.allianceSource));
-    var vaultGoal = new VaultGoal(() => ally.vault, maxCount: vaultMax)
-      ..priority = 5
-      ..addSource(getSource(ally.allianceSource))
-      ..addSource(getSource(ally.switchSource))
-      ..addSource(getSource(ally.portalRight))
-      ..addSource(getSource(ally.portalLeft));
-    List<Goal> targets = [switchGoal, vaultGoal];
-    if (includeScale) {
-      var scale = getBalance(ally, ally.match.scale,
-          minMargin: scaleMargin, maxCount: scaleMax)
-        ..priority = 1
-        ..addSource(getSource(ally.oppositeAlliance.switchSource))
-        ..addSource(getSource(ally.allianceSource));
-      targets.add(scale);
-    }
-    return new GoalStrategy(targets)..label = 'near field';
-  }
-
-  static GoalStrategy midField(Alliance ally,
-      {int switchMargin: 2,
-      int scaleMargin: 1,
-      int scaleMax: 2,
-      int vaultMargin: 3,
-      vaultMax: 9}) {
-    var switchGoal =
-        getBalance(ally, ally.switch_, minMargin: switchMargin, priority: 10)
-          ..addSource(getSource(ally.switchSource))
-          ..addSource(getSource(ally.allianceSource));
-    var scaleGoal = getBalance(ally, ally.match.scale,
-        minMargin: scaleMargin, maxCount: scaleMax, priority: 5)
-      ..addSource(getSource(ally.oppositeAlliance.switchSource))
-      ..addSource(getSource(ally.allianceSource));
-    var vaultGoal = new VaultGoal(() => ally.vault, maxCount: vaultMax)
-      ..priority = 1
-      ..addSource(getSource(ally.allianceSource))
-      ..addSource(getSource(ally.switchSource));
-    List<Goal> targets = [switchGoal, scaleGoal, vaultGoal];
-    return new GoalStrategy(targets)..label = 'mid field';
-  }
-
-  static GoalStrategy farField(Alliance ally,
-      {int switchMargin: 2, int scaleMargin: 1, int scaleMax: 2}) {
-    var switchGoal = getBalance(ally, ally.oppositeAlliance.switch_,
-        minMargin: switchMargin, priority: 1)
-      ..addSource(getSource(ally.oppositeAlliance.switchSource))
-//      TODO prefer the portal matching switch color
-      ..addSource(getSource(ally.portalLeft))
-      ..addSource(getSource(ally.portalRight));
-    var scaleGoal = getBalance(ally, ally.match.scale,
-        minMargin: scaleMargin, maxCount: scaleMax, priority: 1)
-      ..addSource(getSource(ally.oppositeAlliance.switchSource))
-      ..addSource(getSource(ally.portalLeft))
-      ..addSource(getSource(ally.portalRight))
-      ..addSource(getSource(ally.allianceSource));
-    List<Goal> targets = [switchGoal, scaleGoal];
-    return new GoalStrategy(targets)..label = "far field";
-  }
-
-  static SourceGoal getSource(PowerCubeSource powerCubeSource) {
-    return new SourceGoal(() => powerCubeSource);
-  }
-
-  static BalanceGoal getBalance(Alliance alliance, Balance balance,
-      {int maxCount: 20, int minMargin: 2, int priority: 1}) {
-    getPlate() => alliance.isRed ? balance.redPlate : balance.bluePlate;
-    var goal =
-        new BalanceGoal(getPlate, maxCount: maxCount, minMargin: minMargin);
-    goal.priority = priority;
-    return goal;
   }
 }
 
@@ -327,10 +228,10 @@ abstract class Goal<T> {
   String get description {
     List<String> phrases = [];
     buildDescription(phrases);
-    return normalizeColorReferences(phrases).join(' ');
+    return _normalizeColorReferences(phrases).join(' ');
   }
 
-  List<String> normalizeColorReferences(List<String> phrases) {
+  List<String> _normalizeColorReferences(List<String> phrases) {
     List<String> normalized = [];
     for (String string in phrases) {
       normalized.add(string
@@ -365,6 +266,7 @@ abstract class Goal<T> {
 }
 
 abstract class EndGameGoal extends Goal {
+//  TODO EndGameGoal
   // platform +5 , climb +30
 }
 
@@ -414,7 +316,7 @@ class BalanceGoal extends TargetGoal<BalancePlate> {
 
   BalancePlate get item => target();
 
-  bool get applies => item.pointMargin <= maxCount;
+  bool get applies => item.pointMargin < maxCount;
 
   BalanceGoal(this.target, {this.maxCount: 20, this.minMargin: 2});
 
@@ -441,7 +343,7 @@ class VaultGoal extends TargetGoal<Vault> {
 
   Vault get item => target();
 
-  bool get applies => item.pointMargin <= maxCount;
+  bool get applies => item.pointMargin < maxCount;
 
   VaultGoal(this.target, {this.maxCount: 9});
 

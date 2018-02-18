@@ -1,6 +1,7 @@
+import 'package:power_up_2018/src/services/index_db_service.dart';
+
 import 'autobot.dart';
 import 'model.dart' as up;
-import 'package:power_up_2018/src/services/index_db_service.dart';
 
 class GoalSpec {
   String id = '';
@@ -75,7 +76,7 @@ class GoalSpec {
     }
     startAt = json['startAt'];
     endAt = json['endAt'];
-    priority = json['priority'];
+    priority = json['priority' ?? 1];
     final List<String> convertedSources = [];
     for (String source in json['sources'] ?? []) {
       convertedSources.add(convertSourceId(source, isRed));
@@ -88,15 +89,17 @@ class GoalSpec {
   /// converting from obsolete models
   @deprecated
   String convertSourceId(String id, bool isRed) {
-    if(id == 'portal-red-right') return 'portal right';
-    if(id == 'portal-red-left') return 'portal left';
-    if(id == 'blue-6-source') return !isRed ? '6 by my switch' : '6 by opposite switch';
-    if(id == 'portal-blue-right') return 'portal right';
-    if(id == 'portal-blue-left') return 'portal left';
+    if (id == 'portal-red-right') return 'portal right';
+    if (id == 'portal-red-left') return 'portal left';
+    if (id == 'blue-6-source')
+      return !isRed ? '6 by my switch' : '6 by opposite switch';
+    if (id == 'portal-blue-right') return 'portal right';
+    if (id == 'portal-blue-left') return 'portal left';
 
-    if(id == 'red-6-source') return isRed ? '6 by my switch' : '6 by opposite switch';
-    if(id == 'red-10-source') return 'my stack of 10';
-    if(id == 'blue-10-source') return 'my stack of 10';
+    if (id == 'red-6-source')
+      return isRed ? '6 by my switch' : '6 by opposite switch';
+    if (id == 'red-10-source') return 'my stack of 10';
+    if (id == 'blue-10-source') return 'my stack of 10';
     return id;
   }
 
@@ -155,11 +158,9 @@ class GoalFactory {
   static Goal createSwitch(GoalSpec spec, up.Robot robot) {
     var alliance = robot.alliance;
     target() {
-      up.Balance aSwitch =
-          ((spec.id.contains('bottom') || spec.id.contains('my')) &&
-                  robot.isRed)
-              ? alliance.switch_
-              : alliance.oppositeAlliance.switch_;
+      up.Balance aSwitch = (spec.id == 'my switch')
+          ? alliance.switch_
+          : alliance.oppositeAlliance.switch_;
       return alliance.isRed ? aSwitch.redPlate : aSwitch.bluePlate;
     }
 
@@ -171,9 +172,8 @@ class GoalFactory {
   static Goal createScale(GoalSpec spec, up.Robot robot) {
     var alliance = robot.alliance;
     var target = alliance.match.scale;
-    var goal = new BalanceGoal(() => alliance.isRed
-        ? target.redPlate
-        : target.bluePlate)
+    var goal = new BalanceGoal(
+        () => alliance.isRed ? target.redPlate : target.bluePlate)
       ..maxCount = spec.maxCount
       ..minMargin = spec.minMargin;
     _populateSharedValues(goal, spec, alliance);
@@ -182,8 +182,7 @@ class GoalFactory {
 
   static Goal createVault(GoalSpec spec, up.Robot robot) {
     var alliance = robot.alliance;
-    var target =
-        alliance.isRed ? alliance.vault : alliance.oppositeAlliance.vault;
+    var target = alliance.vault;
     var goal = new VaultGoal(() => target)..maxCount = spec.maxCount;
     _populateSharedValues(goal, spec, alliance);
     return goal;
@@ -211,12 +210,11 @@ class GoalFactory {
     up.PowerCubeSource cubeSource = null;
     if (id.contains('6')) {
       cubeSource = id.contains('my')
-          ? alliance.allianceSource
-          : alliance.oppositeAlliance.allianceSource;
+          ? alliance.switchSource
+          : alliance.oppositeAlliance.switchSource;
     } else if (id.contains('10')) {
-      cubeSource = alliance.switchSource;
-    } else
-    if (id.contains('portal')) {
+      cubeSource = alliance.allianceSource;
+    } else if (id.contains('portal')) {
       if (id.contains('left')) {
         cubeSource =
             alliance.isRed ? alliance.portalLeft : alliance.portalRight;

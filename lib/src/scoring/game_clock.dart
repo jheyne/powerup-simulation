@@ -1,9 +1,11 @@
 import 'dart:async';
 
+/// indicates the phase of the game
 enum State { INIT, AUTON, TELEOP, DONE }
 
 typedef void StateChange(State state);
 
+/// manages the lifecycle of the game
 class GameClock {
   static GameClock instance = new GameClock();
 
@@ -12,9 +14,11 @@ class GameClock {
   State get state => _state;
 
   set state(State state) {
-    _state = state;
-    for (StateChange function in stateChangedListeners) {
-      function(_state);
+    if (state != _state) {
+      _state = state;
+      for (StateChange function in stateChangedListeners) {
+        function(_state);
+      }
     }
   }
 
@@ -22,10 +26,17 @@ class GameClock {
 
   Set<StateChange> stateChangedListeners = new Set();
 
+  /// register functions to invoke when there are state changes
   addStateChangeListener(StateChange function) =>
       stateChangedListeners.add(function);
 
-  Timer secondTimer;
+  /// defer execution to avoid changes during iteration
+  removeStateChangeListener(StateChange function) => new Timer(
+      new Duration(milliseconds: 1),
+      () => stateChangedListeners.remove(function));
+
+  /// counts seconds in the game
+  Timer _secondTimer;
 
   start() {
     currentSecond = 0;
@@ -37,7 +48,7 @@ class GameClock {
       }
     }
 
-    secondTimer = new Timer.periodic(new Duration(seconds: 1), incrementTime);
+    _secondTimer = new Timer.periodic(new Duration(seconds: 1), incrementTime);
     startAutonomous();
   }
 
@@ -47,10 +58,12 @@ class GameClock {
 
   bool get isTeleop => state == State.TELEOP;
 
+  bool get isEndGame => currentSecond >= 120;
+
   bool get isDone => state == State.DONE;
 
   cancel() {
-    secondTimer.cancel();
+    _secondTimer.cancel();
     state = State.DONE;
   }
 

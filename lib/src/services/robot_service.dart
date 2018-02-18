@@ -2,7 +2,6 @@ import 'dart:math';
 
 import "package:angular/angular.dart";
 
-import '../scoring/autobot.dart';
 import '../scoring/goal_spec.dart';
 import '../scoring/model.dart' as up;
 
@@ -43,6 +42,15 @@ class RobotService {
   List<up.Robot> get robots =>
       [robotRed1, robotRed2, robotRed3, robotBlue1, robotBlue2, robotBlue3];
 
+  List<up.Robot> get ones => [robotRed1, robotBlue1];
+
+  List<up.Robot> get twos => [
+        robotRed2,
+        robotBlue2,
+      ];
+
+  List<up.Robot> get threes => [robotRed3, robotBlue3];
+
   RobotService() {
     newMatch();
   }
@@ -67,16 +75,6 @@ class RobotService {
 
   adjustCapability(up.Robot robot) {
     robot.ranking = random.nextInt(100);
-  }
-
-  buildGoalStrategy(up.Robot robot, Zone zone) {
-    if (zone == Zone.Near) {
-      return GoalBuilder.nearField(robot.alliance);
-    } else if (zone == Zone.Mid) {
-      return GoalBuilder.midField(robot.alliance);
-    } else {
-      return GoalBuilder.farField(robot.alliance);
-    }
   }
 
   buildSpecs(up.Robot robot, zone) {
@@ -104,8 +102,8 @@ class RobotService {
         "startAt": 0,
         "endAt": 15,
         "sources": ["my stack of 10"],
-        "minMargin": 2,
-        "maxCount": 20
+        "minMargin": 0,
+        "maxCount": 1
       },
       {
         "id": "my switch",
@@ -133,7 +131,7 @@ class RobotService {
 
   final Map<String, dynamic> midFieldSample = {
     "label": "mid field",
-    "dbKey": 2,
+    "dbKey": 1,
     "goalSpecs": [
       {
         "id": "my switch",
@@ -155,7 +153,13 @@ class RobotService {
         "id": "vault",
         "startAt": 15,
         "endAt": 150,
-        "sources": ["my stack of 10", "6 by my switch"],
+        "sources": [
+          "my stack of 10",
+          "6 by my switch",
+          "portal left",
+          "portal right",
+          "6 by opposite switch"
+        ],
         "minMargin": null,
         "maxCount": 5
       },
@@ -164,8 +168,8 @@ class RobotService {
         "startAt": 0,
         "endAt": 15,
         "sources": ["my stack of 10"],
-        "minMargin": 2,
-        "maxCount": 20
+        "minMargin": 0,
+        "maxCount": 1
       }
     ]
   };
@@ -179,8 +183,8 @@ class RobotService {
         "startAt": 0,
         "endAt": 15,
         "sources": ["6 by my switch"],
-        "minMargin": 2,
-        "maxCount": 20
+        "minMargin": 0,
+        "maxCount": 1
       },
       {
         "id": "opposite switch",

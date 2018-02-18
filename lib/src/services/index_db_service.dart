@@ -8,6 +8,7 @@ import "package:angular/angular.dart";
 import '../scoring/model.dart';
 import '../scoring/goal_spec.dart';
 
+/// facilitates persistence in browser-based index db
 @Directive(selector: '[index-db-service]')
 @Injectable()
 class IndexDbService {
@@ -116,6 +117,7 @@ class IndexDbService {
   }
 }
 
+/// encapsulates key features for persistence in index db
 abstract class Persistable {
   String dbKey;
 
