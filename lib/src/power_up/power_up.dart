@@ -55,6 +55,7 @@ class PowerUpComponent implements OnInit {
     botz.locationSupplier = () => fieldDiagram;
     _indexDbService.open();
     newMatch();
+    robot.alliance.vault.boost.triggered;
   }
 
   newMatch() {
@@ -69,7 +70,7 @@ class PowerUpComponent implements OnInit {
   }
 
   startAutoBot() {
-    print('power_up.startAutoBot');
+    print('power_up.startAutoBot manual drive is ${botz.manualDriveRed1}');
     List<up.Robot> bots = botz.robots;
     if (botz.manualDriveRed1) {
       bots.remove(botz.robotRed1);
@@ -101,4 +102,21 @@ class PowerUpComponent implements OnInit {
     autobot.robot.alliance.match.gameClock.addStateChangeListener(listen);
   }
 
+  levitate() {
+    var v = robot.alliance.vault;
+    v.count = 3;
+    v.levitate.trigger();
+  }
+
+  boost(int cubesToUse) {
+    var v = robot.alliance.vault;
+    v.boost.count = cubesToUse;
+    v.boost.trigger();
+  }
+
+  force(int cubesToUse) {
+    var v = robot.alliance.vault;
+    v.force.count = cubesToUse;
+    v.force.trigger();
+  }
 }

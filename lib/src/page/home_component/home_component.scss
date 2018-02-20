@@ -1,0 +1,30 @@
+@import "../../../../web/variables";
+
+h1 {
+  font-size: smaller;
+}
+
+p {
+
+}
+
+footer {
+  font-size: small;
+  width: 60%;
+  margin: auto auto;
+  text-align: center;
+}
+
+.angular-dart {
+  margin-bottom: 13px;
+}
+
+.link {
+  color: $mat-blue-600;
+  cursor: pointer;
+}
+
+.link:hover {
+  text-decoration: underline;
+  text-decoration-style: dotted;
+}

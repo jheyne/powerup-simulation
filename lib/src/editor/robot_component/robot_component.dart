@@ -8,6 +8,7 @@ import '../gauge_component/gauge_component.dart';
 import '../goal_list_component/goal_list_component.dart';
 import '../robot_detail_component/robot_detail_component.dart';
 import '../stored_data_component/stored_data_component.dart';
+import '../../services/robot_service.dart';
 
 @Component(
     selector: 'robot-component',
@@ -23,10 +24,13 @@ import '../stored_data_component/stored_data_component.dart';
       MaterialExpansionPanel,
       MaterialExpansionPanelSet,
       MaterialProgressComponent,
+      MaterialToggleComponent,
       RobotDetailComponent,
       GoalListComponent,
       GaugeComponent,
       StoredDataComponent,
+      MaterialTabComponent,
+      MaterialTabPanelComponent,
     ],
     pipes: const [
       COMMON_PIPES
@@ -35,6 +39,9 @@ import '../stored_data_component/stored_data_component.dart';
       materialProviders
     ])
 class RobotComponent implements OnInit {
+
+  final RobotService botz;
+
   @Input()
   Robot robot;
 
@@ -51,7 +58,7 @@ class RobotComponent implements OnInit {
   @ViewChild(MaterialProgressComponent)
   MaterialProgressComponent progressBar;
 
-  RobotComponent() {
+  RobotComponent(this.botz) {
     rankLabelFunction =
         () => "'${robot.label}' ranks ${ranking}th percentile. Strategy: ${robot
         .strategyLabel}";

@@ -15,21 +15,25 @@
     </div>
 
     <balance-component #topSwitch id="top-switch" [robot]="robot" [balance]="match.blue.switch_"
-                       ></balance-component>
+    ></balance-component>
 
     <div id="blue-6-source" (click)="robot.getCubeX(robot.alliance.oppositeAlliance.switchSource, $event)">
         {{robot.alliance.oppositeAlliance.switchSource.count}}
     </div>
 
+    <div id="platform-top"></div>
+    <div id="climber-top"></div>
     <balance-component #midScale id="scale" [robot]="robot" [balance]="robot.alliance.match.scale"
-                       [isSwitch]="false" ></balance-component>
+                       [isSwitch]="false"></balance-component>
+    <div id="platform-bottom" (click)="robot.goToPlatform($event)"></div>
+    <div id="climber-bottom" (click)="robot.goToClimb($event)"></div>
 
     <div id="red-6-source" (click)="robot.getCubeX(robot.alliance.switchSource, $event)">
         {{robot.alliance.switchSource.count}}
     </div>
 
     <balance-component #bottomSwitch id="bottom-switch" [robot]="robot" [balance]="match.red.switch_"
-                       ></balance-component>
+    ></balance-component>
 
     <div id="red-10-source" (click)="robot.getCubeX(robot.alliance.allianceSource, $event)">
         <div class="centerText">{{robot.alliance.allianceSource.count}}</div>

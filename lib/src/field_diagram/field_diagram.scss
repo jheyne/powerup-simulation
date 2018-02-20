@@ -52,6 +52,24 @@
   position: absolute;
 }
 
+%platform {
+  @extend %border;
+  background-color: whitesmoke;
+  left: $climbing-platform-left;
+  width: $climbing-platform-width;
+  height: $climbing-platform-height;
+  position: absolute;
+  z-index: -1;
+}
+
+%climber {
+  @extend %border;
+  left: $climber-left;
+  width: $climber-width;
+  height: $climber-height;
+  position: absolute;
+}
+
 #portal-red-left {
   @extend %portal;
   top: 0;
@@ -106,12 +124,22 @@
   width: $switch-width;
 }
 
+#platform-top {
+  @extend %platform;
+  top: 50% - $climbing-platform-height;
+}
+
 #scale {
   position: absolute;
   top: $scale-to-station;
   left: $scale-to-wall;
   width: $scale-total-width;
   height: $switch-fence-depth;
+}
+
+#platform-bottom {
+  @extend %platform;
+  top: 50% + ($scale-plate-width / 8);
 }
 
 #red-6-source {
@@ -152,6 +180,18 @@
   top: calc(#{$scaled-field-depth} - #{$portal-depth} - 1px);
   left: 0;
   border-top-right-radius: $portal-radius;
+}
+
+#climber-top {
+  @extend %climber;
+  top: calc(50% - #{$climber-offset-from-center} - (#{$climber-height} / 2));
+  background-color: blue;
+}
+
+#climber-bottom {
+  @extend %climber;
+  top: calc(50% + #{$climber-offset-from-center});
+  background-color: red;
 }
 
 .redTeam {

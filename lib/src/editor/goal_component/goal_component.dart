@@ -31,7 +31,9 @@ class GoalComponent implements OnInit, AfterContentInit {
     'my switch',
     'opposite switch',
     'scale',
-    'vault'
+    'vault',
+    'platform',
+    'climb'
   ];
 
   final SelectionOptions<String> idOptions =

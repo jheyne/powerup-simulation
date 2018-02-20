@@ -1,1 +1,13 @@
-<power-up></power-up>
+<div class="container">
+    <img class="logo"
+         src="images/calcman.svg"
+         alt="The Fighting Calculators"
+    title="Courtesy of FRC Team 2175 The Fighting Calculators">
+    <nav>
+        <a [routerLink]="['Home']">Home</a>
+        <a [routerLink]="['Configure']">Prepare the Robots</a>
+        <a [routerLink]="['RunSimulation']">Power Up!</a>
+    </nav>
+    <login-status></login-status>
+</div>
+<router-outlet></router-outlet>

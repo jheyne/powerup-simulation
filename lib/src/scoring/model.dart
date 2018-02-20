@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:power_up_2018/src/services/index_db_service.dart';
 import 'game_clock.dart';
 import 'goal_spec.dart';
+import 'autobot.dart';
 
 enum Color { RED, BLUE }
 enum PowerUpState { INIT, ACTIVE, COMPLETE }
@@ -24,6 +25,9 @@ class Alliance {
   Balance switch_;
   Vault vault;
 
+  EndGameGoal climbingPlatform = new EndGameGoal(5, 'platform-bottom', true);
+  EndGameGoal climber = new EndGameGoal(30, 'climber-bottom', true);
+
   Alliance get oppositeAlliance => match.red == this ? match.blue : match.red;
 
   bool get isRed => color == Color.RED;
@@ -41,6 +45,8 @@ class Alliance {
       portalRight._id = 'portal-blue-right';
       switchSource._id = 'blue-6-source';
       allianceSource._id = 'blue-10-source';
+      climbingPlatform.basicId = 'platform-top';
+      climber.basicId = 'climber-top';
     }
     match.gameClock.addStateChangeListener(gameStateChanged);
   }
@@ -256,11 +262,12 @@ class PowerUp {
   bool get canTrigger =>
       state == PowerUpState.INIT && (isLevitate ? count >= 3 : count >= 1);
 
-  PowerUp get oppositeAliancePowerUp => alliance.vault.boost == this
+  PowerUp get oppositeAlliancePowerUp => alliance.vault.boost == this
       ? alliance.oppositeAlliance.vault.boost
       : alliance.oppositeAlliance.vault.force;
 
   trigger() {
+    triggered = true;
     state = PowerUpState.ACTIVE;
     if (!isLevitate && !isSuspended) {
       powerUpForTenSeconds();
@@ -268,10 +275,10 @@ class PowerUp {
   }
 
   void powerUpForTenSeconds() {
-    oppositeAliancePowerUp.isSuspended = true;
+    oppositeAlliancePowerUp.isSuspended = true;
     new Timer(new Duration(seconds: 10), () {
       state = PowerUpState.COMPLETE;
-      oppositeAliancePowerUp.isSuspended = false;
+      oppositeAlliancePowerUp.isSuspended = false;
     });
   }
 }
@@ -287,6 +294,8 @@ class Vault implements PowerCubeTarget {
   int get pointMargin => count;
 
   int get cubeCount => count;
+
+  int get availableCubeCount => count - levitate.count - force.count - boost.count;
 
   List<String> id(Robot robot) => [basicId];
 
@@ -422,6 +431,7 @@ class Robot implements Persistable {
   Alliance alliance;
   HasLocationService hasLocationService;
   String strategyLabel;
+  bool preloadFromVault = true;
 
   /// in milliseconds
   Variable graspCube = new Variable.from(3500, 60, 30);
@@ -626,6 +636,26 @@ class Robot implements Persistable {
     percentile += deliverCubeRange.getPercentile(deliverCube);
     percentile += deliverCubeHighRange.getPercentile(deliverCubeHigh);
     return percentile ~/ 5;
+  }
+
+  goToPlatform(MouseEvent event) {
+    final Location location = hasLocationService().getLocation(alliance.climber, this);
+    finished() {
+      parkOnPlatform();
+      currentLocation = location.origin;
+    }
+
+    onRobotMove(this, currentLocation, location.origin, finished);
+  }
+
+  goToClimb(MouseEvent event) {
+    final Location location = hasLocationService().getLocation(alliance.climbingPlatform, this);
+    finished() {
+      climb();
+      currentLocation = location.origin;
+    }
+
+    onRobotMove(this, currentLocation, location.origin, finished);
   }
 }
 

@@ -4,7 +4,10 @@
 body {
   max-width: 1000px;
   margin: 0 auto;
-  padding: 5vw;
+  padding-top: 1vw;
+  padding-bottom: 3vw;
+  padding-left: 5vw;
+  padding-right: 5vw;
 }
 
 * {
@@ -23,22 +26,6 @@ material-button {
   flex-direction: column;
 }
 
-score {
-  font-weight: bold;
-  display: inline;
-  margin-left: 10px;
-  margin-right: 10px;
-}
-
-.redScore {
-  @extend score;
-  color: red;
-}
-
-.blueScore {
-  @extend score;
-  color: blue;
-}
 
 .findme {
   background-color: hotpink;

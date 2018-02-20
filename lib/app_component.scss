@@ -1,3 +1,49 @@
 :host {
     /* This is equivalent of the 'body' selector of a page. */
 }
+
+.logo {
+  margin-left: 3vw;
+  padding-top: .75vw;
+  padding-bottom: .75vw;
+  width: 187px;
+  height: 38px;
+}
+
+nav a {
+  padding: 5px 10px;
+  text-decoration: none;
+  margin-top: 15px;
+  margin-left: 2px;
+  margin-right: 2px;
+  display: inline-block;
+  font-size: 18px;
+  font-weight: 200;
+}
+
+nav a:visited, a:link {
+  color: #3b78e7;
+}
+
+nav a:hover {
+  color: #3367d6;
+  background-color: #e8f0fe;
+}
+
+nav a.router-link-active {
+  color: #2a56c6;
+}
+
+
+.container {
+  border-bottom: 1px solid lightgray;
+  color: darkslategray;
+  background-color: white;
+  width: 100%;
+  font-size: 13px;
+
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  vertical-align: middle;
+}

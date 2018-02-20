@@ -52,6 +52,10 @@ class GoalSpec {
 
   bool get isSwitch => id.contains('switch');
 
+  bool get isPlatform => id == 'platform';
+
+  bool get isClimb => id == 'climb';
+
   bool get isBalance => isSwitch || isScale;
 
   Map<String, dynamic> toJson() {
@@ -76,7 +80,7 @@ class GoalSpec {
     }
     startAt = json['startAt'];
     endAt = json['endAt'];
-    priority = json['priority' ?? 1];
+    priority = json['priority'] ?? 1;
     final List<String> convertedSources = [];
     for (String source in json['sources'] ?? []) {
       convertedSources.add(convertSourceId(source, isRed));
@@ -150,10 +154,20 @@ class GoalFactory {
       return createScale(spec, robot);
     } else if (spec.isSwitch) {
       return createSwitch(spec, robot);
+    } else if (spec.isPlatform) {
+      return createPlatform(spec, robot);
+    } else if (spec.isClimb) {
+      return createClimb(spec, robot);
     }
     print('Unknown goal spec id: ${spec.id}');
     throw spec;
   }
+
+  static Goal createPlatform(GoalSpec spec, up.Robot robot) =>
+      robot.alliance.climbingPlatform;
+
+  static Goal createClimb(GoalSpec spec, up.Robot robot) =>
+      robot.alliance.climber;
 
   static Goal createSwitch(GoalSpec spec, up.Robot robot) {
     var alliance = robot.alliance;

@@ -35,7 +35,14 @@ class AutoBot {
   }
 
   runAuto() {
-    // TODO pre load bot
+    if (robot.preloadFromVault) {
+      robot.hasPowerCube = true;
+      if (randomInstance.nextBool()) {
+        robot.alliance.portalRight.count--;
+      } else {
+        robot.alliance.portalLeft.count--;
+      }
+    }
     _runStrategy(consolidatedStrategy, 0);
   }
 
@@ -68,8 +75,8 @@ class AutoBot {
         return false;
       }
     }
-    new Timer(
-        new Duration(milliseconds: waitMilliseconds), () => _runStrategy(goal, count + counterIncrement));
+    new Timer(new Duration(milliseconds: waitMilliseconds),
+        () => _runStrategy(goal, count + counterIncrement));
     return true;
   }
 
@@ -94,6 +101,7 @@ final NO_SOURCE_GOAL = 'No source goal';
 
 /// Virtualizes accessing cube targets
 typedef PowerCubeTarget GetTarget();
+
 /// Virtualizes accessing cube sources
 typedef PowerCubeSource GetSource();
 
@@ -265,9 +273,32 @@ abstract class Goal<T> {
   }
 }
 
-abstract class EndGameGoal extends Goal {
+class EndGameGoal extends Goal implements HasId {
+  int pointCount;
+  String _id;
+  bool isPlatform;
+
+  EndGameGoal(this.pointCount, this._id, this.isPlatform);
+
+  List<String> id(Robot robot) => [basicId];
+
+  String get basicId => _id;
+
+  void set basicId(String id) => _id = id;
+
+  bool get applies => true;
+
+  get item => this;
+
+  void _buildJson(Map<String, dynamic> json) {
+    isPlatform ? json['platform'] = _id : json['climb'] = _id;
+  }
+
+  void _buildDescription(List<String> phrases) =>
+      phrases.add(isPlatform ? 'go to platform.' : 'climb');
+
 //  TODO EndGameGoal
-  // platform +5 , climb +30
+// platform +5 , climb +30
 }
 
 abstract class TargetGoal<T extends PowerCubeTarget> extends Goal {

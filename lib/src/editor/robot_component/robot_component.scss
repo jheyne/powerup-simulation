@@ -49,7 +49,7 @@ hr {
 }
 
 .header {
-  margin-top: 1.5em;
+  margin-top: 10px;
   font-weight: bold;
   text-align: center;
 }
@@ -57,4 +57,8 @@ hr {
 .nestedGauge {
   padding-left: 2em;
   padding-right: 2em;
+}
+
+.hideMe {
+  visibility: hidden;
 }

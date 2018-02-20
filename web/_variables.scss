@@ -20,7 +20,7 @@ $line-width: 0.6%;
 $line-depth: 0.5%;
 $scale-plate-width: 11.1%;
 $scale-plate-depth: 11.7%;
-$scale-total-width: 55.6%;
+$scale-total-width: 59%;
 $scale-to-station: 46.9%;
 $scale-to-wall: 22.1%;
 $climbing-rung-width: 5.6%;
@@ -41,6 +41,13 @@ $scaled-field-depth: calc(#{$field-depth} / 2);
 $cube-6-source-height: 2%;
 $cube-10-source-width: 12%;
 $cube-10-source-height: 6%;
+$climbing-platform-left: 34%;
+$climbing-platform-width: 32%;
+$climbing-platform-height: 6.36%;
+$climber-width: 5.24%;
+$climber-left: 50% - ($climber-width / 2);
+$climber-height: 2%;
+$climber-offset-from-center: 3%;
 
 $color-pending: lightgray;
 

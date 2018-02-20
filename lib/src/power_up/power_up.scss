@@ -1,3 +1,5 @@
+@import "../../../web/variables";
+
 #all {
   display: grid;
   grid-auto-columns: 1fr 1fr;
@@ -21,6 +23,7 @@
 .get-cube {
   background-color: yellow;
 }
+
 .place-robot {
   background-color: orange;
   color: white;
@@ -37,4 +40,45 @@ button-space {
 
 material-button {
   max-width: 300px;
+}
+
+.power-up-levitate {
+  background-color: greenyellow;
+}
+
+.power-up-force {
+  background-color: coral;
+}
+
+.power-up-levitate {
+  background-color: lightsalmon;
+}
+
+.suppress {
+  display: none;
+}
+
+.scoreBox {
+  padding-bottom: 1.3em;
+}
+
+score {
+  font-weight: bold;
+  display: inline;
+  //margin-left: 10px;
+  margin-right: 20px;
+}
+
+.redScore {
+  @extend score;
+  color: red;
+}
+
+.blueScore {
+  @extend score;
+  color: blue;
+}
+
+.remainingTime {
+  @extend score;
 }
