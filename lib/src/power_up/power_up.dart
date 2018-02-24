@@ -72,13 +72,13 @@ class PowerUpComponent implements OnInit, CanDeactivate {
 
   newMatch() {
     print('power_up.newMatch');
-    fieldDiagram.resetRobots();
+    fieldDiagram.resetField();
     botz.newMatch();
     initializeMatch();
   }
 
   void initializeMatch() {
-    fieldDiagram.resetRobots();
+    fieldDiagram.resetField();
     for (up.Robot robot in botz.robots) {
       fieldDiagram.addRobot(robot);
     }
@@ -87,7 +87,10 @@ class PowerUpComponent implements OnInit, CanDeactivate {
   }
 
   replay() {
-
+    print('power_up.replay');
+    fieldDiagram.resetField();
+    initializeMatch();
+    botz.match.gameClock.state = State.INIT;
   }
 
   startAutoBot() {

@@ -59,55 +59,52 @@
 
         <div class="list">
             <material-button
-                    *ngIf="robot.alliance.vault.availableCubeCount>2 && !robot.alliance.vault.levitate.triggered"
+                    *ngIf="match.gameClock.isGameActive && robot.alliance.vault.availableCubeCount>2 && !robot.alliance.vault.levitate.triggered"
                     class="power-up-levitate"
                     raised clear-size
                     (trigger)="levitate()">Levitate
             </material-button>
 
             <material-button
-                    *ngIf="robot.alliance.vault.availableCubeCount>=1 && !robot.alliance.vault.force.triggered"
+                    *ngIf="match.gameClock.isGameActive && robot.alliance.vault.availableCubeCount>=1 && !robot.alliance.vault.force.triggered"
                     class="power-up-force"
                     raised clear-size
                     (trigger)="force(1)">Force Switch
             </material-button>
             <material-button
-                    *ngIf="robot.alliance.vault.availableCubeCount>=2 && !robot.alliance.vault.force.triggered"
+                    *ngIf="match.gameClock.isGameActive && robot.alliance.vault.availableCubeCount>=2 && !robot.alliance.vault.force.triggered"
                     class="power-up-force"
                     raised clear-size
                     (trigger)="force(2)">Force Scale
             </material-button>
             <material-button
-                    *ngIf="robot.alliance.vault.availableCubeCount>=3 && !robot.alliance.vault.force.triggered"
+                    *ngIf="match.gameClock.isGameActive && robot.alliance.vault.availableCubeCount>=3 && !robot.alliance.vault.force.triggered"
                     class="power-up-force"
                     raised clear-size
                     (trigger)="force(3)">Force Scale and Switch
             </material-button>
 
             <material-button
-                    *ngIf="robot.alliance.vault.availableCubeCount>=1 && !robot.alliance.vault.boost.triggered"
+                    *ngIf="match.gameClock.isGameActive && robot.alliance.vault.availableCubeCount>=1 && !robot.alliance.vault.boost.triggered"
                     class="power-up-boost"
                     raised clear-size
                     (trigger)="boost(1)">Boost Switch
             </material-button>
             <material-button
-                    *ngIf="robot.alliance.vault.availableCubeCount>=2 && !robot.alliance.vault.boost.triggered"
+                    *ngIf="match.gameClock.isGameActive && robot.alliance.vault.availableCubeCount>=2 && !robot.alliance.vault.boost.triggered"
                     class="power-up-boost"
                     raised clear-size
                     (trigger)="boost(2)">Boost Scale
             </material-button>
             <material-button
-                    *ngIf="robot.alliance.vault.availableCubeCount>=3 && !robot.alliance.vault.boost.triggered"
+                    *ngIf="match.gameClock.isGameActive && robot.alliance.vault.availableCubeCount>=3 && !robot.alliance.vault.boost.triggered"
                     class="power-up-boost"
                     raised clear-size
                     (trigger)="boost(3)">Boost Scale and
                 Switch
             </material-button>
-        </div>
 
-
-        <div class="list">
-            <material-button *ngIf="!match.gameClock.isGameActive" class="start" raised clear-size
+            <material-button *ngIf="match.gameClock.isDone" class="start" raised clear-size
                              (trigger)="newMatch()">New match
             </material-button>
 

@@ -6,8 +6,8 @@ import 'package:angular/angular.dart';
 import 'package:css_animation/css_animation.dart';
 
 import '../balance_component/balance_component.dart';
-import '../scoring/model.dart' as up;
 import '../scoring/game_clock.dart';
+import '../scoring/model.dart' as up;
 import '../utils/astar_util.dart';
 
 @Component(
@@ -136,7 +136,8 @@ class FieldDiagram implements OnInit, AfterViewChecked, up.LocationService {
       keyframes.remove(i);
     }
     var animation = new CssAnimation.keyframes(keyframes);
-    AnimationCanceller canceller = new AnimationCanceller(robot, element, animation);
+    AnimationCanceller canceller =
+        new AnimationCanceller(robot, element, animation);
     animationComplete() {
       whenComplete();
       animation.destroy();
@@ -172,16 +173,50 @@ class FieldDiagram implements OnInit, AfterViewChecked, up.LocationService {
       var x = myRect.left - parentRect.left;
       var y = myRect.top - parentRect.top;
       print('${robot.label} boundingClientRect $x @ $y');
-      robot.currentLocation =
-          new Point(x, y);
+      robot.currentLocation = new Point(x, y);
     });
   }
 
-  resetRobots() {
+  resetField() {
+    match.red.tally.matchPoints = 0;
+    match.blue.tally.matchPoints = 0;
+    _resetRobots();
+    _resetCubeCounts();
+    _resetSources();
+  }
+
+  _resetSources() {
+    for (up.Alliance alliance in [match.red, match.blue]) {
+      alliance.portalRight.count = 7;
+      alliance.portalLeft.count = 7;
+      alliance.allianceSource.count = 10;
+      alliance.switchSource.count = 6;
+    }
+  }
+
+  _resetRobots() {
     redBots = 0;
     blueBots = 0;
     _robotMap.forEach((robot, element) => element.remove());
     _robotMap.clear();
+  }
+
+  _resetCubeCounts() {
+    for (BalanceComponent b in [topSwitch, midScale, bottomSwitch]) {
+      b.balance.redPlate.cubeCount = 0;
+      b.balance.bluePlate.cubeCount = 0;
+    }
+    for (up.Vault vault in [match.red.vault, match.blue.vault]) {
+      vault.count = 0;
+      vault.levitate.count = 0;
+      vault.force.count = 0;
+      vault.boost.count = 0;
+    }
+    _robotMap.keys.forEach((robot) {
+      robot.hasClimbed = false;
+      robot.hasParked = false;
+      robot.hasCrossedLine = false;
+    });
   }
 
   detectChanges() {
@@ -217,7 +252,7 @@ class AnimationCanceller {
   }
 
   stateChange(State state) {
-    if(state == State.DONE) {
+    if (state == State.DONE) {
       element.style.animationPlayState = 'paused';
       print('destroying animation for ${robot.label}');
       animation.destroy;
@@ -228,5 +263,4 @@ class AnimationCanceller {
   void stopMonitoringEndGame() {
     robot.alliance.match.gameClock.removeStateChangeListener(stateChange);
   }
-
 }
