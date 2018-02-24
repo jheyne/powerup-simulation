@@ -29,12 +29,14 @@
   @extend %balance-pad;
   top: -1px;
   left: -1px;
+  z-index: 1;
 }
 
 #right {
   @extend %balance-pad;
   top: -1px;
   left: 75%;
+  z-index: 1;
 }
 
 .red {

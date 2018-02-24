@@ -1,4 +1,4 @@
-<div class="list" *ngIf="!robot.hasPowerCube">
+<div class="suppress list" *ngIf="!robot.hasPowerCube">
     <h3>Get power cube from...</h3>
     <material-button (click)="robot.getCube(robot.alliance.portalLeft)" *ngIf="robot.alliance.portalLeft.count>0">
         <material-icon icon="format_indent_increase"></material-icon>
@@ -26,7 +26,7 @@
         <span class="count"> {{robot.alliance.oppositeAlliance.switchSource.count}}</span>
     </material-button>
 </div>
-<div class="list" *ngIf="robot.hasPowerCube">
+<div class="suppress list" *ngIf="robot.hasPowerCube">
     <h3>Place power cube in...</h3>
     <material-button (click)="robot.putCube(robot.alliance.switch_)">
         <material-icon icon="format_indent_decrease"></material-icon>

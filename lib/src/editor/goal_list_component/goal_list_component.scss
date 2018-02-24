@@ -61,6 +61,11 @@ material-dialog {
 
 .addGoal {
   @extend %anchor;
+  background-color: green;
+  color: white;
+  border-radius: 4px;
+  text-align: center;
+  padding-top: 3px;
   //justify-self: right;
   //grid-column-end: span2;
   //margin-right: 1em;

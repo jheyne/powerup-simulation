@@ -14,37 +14,41 @@
             <div class="blueScore">
                 Blue Score: {{match.blue.tally.matchPoints}}
             </div>
-            <div  class="remainingTime">
+            <div class="remainingTime">
                 Remaining Time: {{150 - match.gameClock.currentSecond}}
             </div>
         </div>
 
-        <div class="list" *ngIf="match.gameClock.isInit">
-            <div class="list suppress" *ngIf="!robot.hasPowerCube">
-                <button-space></button-space>
-                <material-button class="get-cube" raised clear-size
-                                 (trigger)="robot.getCube(robot.alliance.portalLeft, true)">Get cube from left portal
-                </material-button>
-                <button-space></button-space>
-                <material-button class="get-cube" raised clear-size
-                                 (trigger)="robot.getCube(robot.alliance.portalRight, true)">Get cube from right portal
-                </material-button>
-            </div>
-            <div class="list suppress">
-                <button-space></button-space>
-                <material-button class="place-robot" raised clear-size>Start at left
-                </material-button>
-                <button-space></button-space>
-                <material-button class="place-robot" raised clear-size>Start at center
-                </material-button>
-                <button-space></button-space>
-                <material-button class="place-robot" raised clear-size>Start at right
-                </material-button>
-                <button-space></button-space>
+        <div *ngIf="false">
+            <div class="list" *ngIf="match.gameClock.isInit">
+                <div class="list" *ngIf="!robot.hasPowerCube">
+                    <button-space></button-space>
+                    <material-button class="get-cube" raised clear-size
+                                     (trigger)="robot.getCube(robot.alliance.portalLeft, true)">Get cube from left
+                        portal
+                    </material-button>
+                    <button-space></button-space>
+                    <material-button class="get-cube" raised clear-size
+                                     (trigger)="robot.getCube(robot.alliance.portalRight, true)">Get cube from right
+                        portal
+                    </material-button>
+                </div>
+                <div class="list">
+                    <button-space></button-space>
+                    <material-button class="place-robot" raised clear-size>Start at left
+                    </material-button>
+                    <button-space></button-space>
+                    <material-button class="place-robot" raised clear-size>Start at center
+                    </material-button>
+                    <button-space></button-space>
+                    <material-button class="place-robot" raised clear-size>Start at right
+                    </material-button>
+                    <button-space></button-space>
+                </div>
             </div>
         </div>
 
-        <div *ngIf="match.gameClock.isAuton">
+        <div class="suppress" *ngIf="match.gameClock.isAuton">
             <material-button *ngIf="!robot.hasCrossedLine" (trigger)="robot.crossLine()">Cross line</material-button>
             <cube-operations [robot]="robot"></cube-operations>
         </div>
@@ -60,8 +64,7 @@
                     raised clear-size
                     (trigger)="levitate()">Levitate
             </material-button>
-        </div>
-        <div class="list">
+
             <material-button
                     *ngIf="robot.alliance.vault.availableCubeCount>=1 && !robot.alliance.vault.force.triggered"
                     class="power-up-force"
@@ -81,8 +84,6 @@
                     (trigger)="force(3)">Force Scale and Switch
             </material-button>
 
-        </div>
-        <div class="list">
             <material-button
                     *ngIf="robot.alliance.vault.availableCubeCount>=1 && !robot.alliance.vault.boost.triggered"
                     class="power-up-boost"
@@ -105,16 +106,21 @@
         </div>
 
 
-        <div class="list" *ngIf="match.gameClock.isDone">
-            <material-button (trigger)="newMatch()">New match</material-button>
-        </div>
-
-        <div class="list" *ngIf="!match.gameClock.isInit">
-            <material-button class="start" raised clear-size (trigger)="match.gameClock.cancel()">CANCEL
+        <div class="list">
+            <material-button *ngIf="!match.gameClock.isGameActive" class="start" raised clear-size
+                             (trigger)="newMatch()">New match
             </material-button>
-        </div>
-        <div class="list" *ngIf="match.gameClock.isInit">
-            <material-button class="start" raised clear-size (trigger)="startAutoBot()">START</material-button>
+
+            <material-button *ngIf="match.gameClock.isGameActive" class="start" raised clear-size
+                             (trigger)="match.gameClock.cancel()">CANCEL
+            </material-button>
+
+            <material-button *ngIf="match.gameClock.isDone" class="start" raised clear-size
+                             (trigger)="replay()">REPLAY
+            </material-button>
+            <material-button *ngIf="match.gameClock.isInit" class="start" raised clear-size
+                             (trigger)="startAutoBot()">START
+            </material-button>
         </div>
     </div>
 </div>

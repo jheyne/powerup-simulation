@@ -1,8 +1,18 @@
 <div class="container">
-    <label for="robotLabel">Robot Name</label>
-    <input id="robotLabel" [value]="robot.label">
-    <label for="strategyLabel">Strategy Name</label>
-    <input id="strategyLabel" [value]="robot.strategyLabel">
+    <div>
+        <div class="heading">Robots</div>
+        <div class="name">
+            <label for="robotLabel">Name</label>
+            <input id="robotLabel" [(ngModel)]="robot.label">
+        </div>
+    </div>
+    <div>
+        <div class="heading">Strategies</div>
+        <div class="name">
+            <label for="strategyLabel">Name</label>
+            <input id="strategyLabel" [(ngModel)]="robot.strategyLabel">
+        </div>
+    </div>
 
     <select #robotSelect class="list" size="5" (change)="selectedRobot=savedRobots[robotSelect.selectedIndex]">
         <option *ngFor="let bot of savedRobots" [value]="bot">{{bot['label'] ?? 'no name'}}</option>
@@ -12,22 +22,29 @@
         <option *ngFor="let strategy of savedStrategies" [value]="strategy">{{strategy['label']}}</option>
     </select>
 
-    <material-button raised class="blue" (trigger)="saveRobot()">Save Robot</material-button>
-    <material-button raised class="blue" (trigger)="loadRobot()" [disabled]="selectedRobot==null">Load Saved Robot
-    </material-button>
-    <material-button raised class="blue" (trigger)="saveStrategy()">Save Strategy</material-button>
-    <material-button raised class="blue" (trigger)="loadStrategy()" [disabled]="selectedStrategy==null">Load Saved
-        Strategy
-    </material-button>
+    <div class="links">
+        <div class="link" (click)="saveRobot()">Save Robot</div>
+        <div class="link" (click)="loadRobot()" [ngClass]="{'disabled':selectedRobot==null}">Load Saved Robot</div>
+        <div class="link" (click)="deleteRobot()" [ngClass]="{'disabled':selectedRobot==null}">Delete Saved Robot</div>
 
-    <material-button raised (trigger)="emailRobot()">Email Robot</material-button>
-    <material-button raised (trigger)="emailAllRobots()">Email All Robots</material-button>
-    <material-button raised (trigger)="emailStrategy()">Email Strategy</material-button>
-    <material-button raised (trigger)="emailAllStrategies()">Email All Strategies</material-button>
+        <div class="link leadingBefore" (click)="copyRobot()">Copy Robot</div>
+        <div class="link" (click)="pasteRobot()">Load Pasted Strategy
+        </div>
 
-    <material-button raised (trigger)="deleteRobot()" [disabled]="selectedRobot==null">Delete Saved Robot
-    </material-button>
-    <div></div>
-    <material-button raised (trigger)="deleteStrategy()" [disabled]="selectedStrategy==null">Delete Saved Strategy
-    </material-button>
+        <a #emailBot class="link leadingBefore" (click)="emailBot.href=emailRobotHref">Email Robot</a>
+    </div>
+    <div class="links">
+        <div class="link" (click)="saveStrategy()">Save Strategy</div>
+        <div class="link" (click)="loadStrategy()" [ngClass]="{'disabled':selectedStrategy==null}">Load Saved Strategy
+        </div>
+        <div class="link" (click)="deleteStrategy()" [ngClass]="{'disabled':selectedStrategy==null}">Delete Saved
+            Strategy
+        </div>
+
+        <div class="link leadingBefore" (click)="copyStrategy()">Copy Strategy</div>
+        <div class="link" (click)="pasteStrategy()" [ngClass]="{'disabled':pastedStrategy==null}">Load Pasted Strategy
+        </div>
+
+        <a #emailStrat class="link leadingBefore" (click)="emailStrat.href=emailStrategyHref">Email Strategy</a>
+    </div>
 </div>

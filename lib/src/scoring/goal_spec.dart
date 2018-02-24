@@ -93,17 +93,17 @@ class GoalSpec {
   /// converting from obsolete models
   @deprecated
   String convertSourceId(String id, bool isRed) {
-    if (id == 'portal-red-right') return 'portal right';
-    if (id == 'portal-red-left') return 'portal left';
-    if (id == 'blue-6-source')
-      return !isRed ? '6 by my switch' : '6 by opposite switch';
-    if (id == 'portal-blue-right') return 'portal right';
-    if (id == 'portal-blue-left') return 'portal left';
-
-    if (id == 'red-6-source')
-      return isRed ? '6 by my switch' : '6 by opposite switch';
-    if (id == 'red-10-source') return 'my stack of 10';
-    if (id == 'blue-10-source') return 'my stack of 10';
+//    if (id == 'portal-red-right') return 'portal right';
+//    if (id == 'portal-red-left') return 'portal left';
+//    if (id == 'blue-6-source')
+//      return !isRed ? '6 by my switch' : '6 by opposite switch';
+//    if (id == 'portal-blue-right') return 'portal right';
+//    if (id == 'portal-blue-left') return 'portal left';
+//
+//    if (id == 'red-6-source')
+//      return isRed ? '6 by my switch' : '6 by opposite switch';
+//    if (id == 'red-10-source') return 'my stack of 10';
+//    if (id == 'blue-10-source') return 'my stack of 10';
     return id;
   }
 
@@ -214,13 +214,13 @@ class GoalFactory {
   }
 
   static GetSource getSource(String id, up.Alliance alliance) {
-    const sourceList = const [
-      'portal left',
-      'portal right',
-      '6 by my switch',
-      '6 by opposite switch',
-      'my stack of 10'
-    ];
+//    const sourceList = const [
+//      'portal left',
+//      'portal right',
+//      '6 by my switch',
+//      '6 by opposite switch',
+//      'my stack of 10'
+//    ];
     up.PowerCubeSource cubeSource = null;
     if (id.contains('6')) {
       cubeSource = id.contains('my')

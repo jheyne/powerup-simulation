@@ -1,0 +1,38 @@
+<div class="card">
+  <material-toggle id="i_control"
+          [ngClass]="{'hideMe': robot!=botz.robotRed1}" [(checked)]="botz.manualDriveRed1"
+          label="I want to control this robot"></material-toggle>
+  <material-toggle
+          [(checked)]="robot.preloadFromVault"
+          label="Preload a cube from the vault"></material-toggle>
+  <gauge-component
+          ident="percentileBox"
+          leftLabel="Basic Bot"
+          rightLabel="Super Bot"
+          [labelFunction]="rankLabelFunction"
+          [clickFunction]="rankClickFunction"
+          [percentileFunction]="rankPercentileFunction"
+          tooltip="Click on the indicator to adjust all of the robot's performance features.
+            To change specific features, click 'More configuration options'.">
+  </gauge-component>
+  <div class="expand">
+    <a class="details" *ngIf="!showDetails" target="_blank" (click)="showDetails = true">More configuration
+      options</a>
+    <a class="details" *ngIf="showDetails" target="_blank" (click)="showDetails = false">Hide options</a>
+  </div>
+</div>
+
+<modal [visible]="showDetails">
+  <material-dialog class="basic-dialog">
+    <h3 header>Robot Details</h3>
+    <robot-component [robot]="robot"></robot-component>
+    <div footer>
+      <material-button autoFocus
+                       clear-size
+                       (trigger)="showDetails = false"
+                       class="closeButton">
+        Close
+      </material-button>
+    </div>
+  </material-dialog>
+</modal>

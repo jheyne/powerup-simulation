@@ -53,15 +53,15 @@ class AutoBot {
     int counterIncrement = 1;
     if (cancelled) return false;
     if (robot.hasPowerCube) {
-      print('${robot.label} place cube: ${count}');
+//      print('${robot.label} place cube: ${count}');
       await goal.placeCube(robot);
     } else {
       if (goal.hasSources) {
-        print('${robot.label} fetch cube: ${count}');
+//        print('${robot.label} fetch cube: ${count}');
         try {
           await goal.fetchCube(robot);
         } catch (NO_SOURCE_GOAL) {
-          if (!robot.alliance.match.gameClock.isDone) {
+          if (robot.alliance.match.gameClock.isGameActive) {
             /// if the game is not done, wait to see if something becomes available
             waitMilliseconds = 500;
             counterIncrement = 0;
@@ -193,7 +193,7 @@ class GoalStrategy {
     int currentSeconds = GameClock.instance.currentSecond;
     var applies = goals.where((goal) =>
         goal.hasSources && goal.applies && goal.inTimeRange(currentSeconds));
-    print('Applies: $applies');
+//    print('Applies: $applies');
     if (applies.isNotEmpty) {
       var atRisk = applies.where((goal) => goal.isAtRisk(currentSeconds));
       byPriority(TargetGoal prev, TargetGoal next) {

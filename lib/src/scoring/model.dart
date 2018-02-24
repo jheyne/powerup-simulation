@@ -360,7 +360,8 @@ class Variable {
   }
 
   num get sampleValue {
-    final num delta = random.nextInt(value * variationPercent ~/ 100);
+    /// avoid negative number
+    final num delta = random.nextInt(max(1, value * variationPercent ~/ 100));
     var result = random.nextBool() ? value + delta : value - delta;
 //    print(
 //        'Given: $_value Variation: $_variationPercent Delta: $delta Result: $result');
@@ -527,10 +528,11 @@ class Robot implements Persistable {
   }
 
   climb() {
-    if (!hasClimbed) {
+    print('here to climb');
+//    if (!hasClimbed) {
       hasClimbed = true;
       alliance.tally.addPoints(30);
-    }
+//    }
   }
 
   Future<bool> getCube(PowerCubeSource source, [bool isPrematch = false]) {
@@ -562,7 +564,7 @@ class Robot implements Persistable {
   Future<bool> putCube(PowerCubeTarget target) {
     final Location location = hasLocationService().getLocation(target, this);
     Completer<bool> completer = new Completer();
-    print('Going to target: $target at: $location from $currentLocation');
+//    print('Going to target: $target at: $location from $currentLocation');
     finished() {
       if (target != null) {
         target.addCube(alliance, this);
@@ -639,7 +641,8 @@ class Robot implements Persistable {
   }
 
   goToPlatform(MouseEvent event) {
-    final Location location = hasLocationService().getLocation(alliance.climber, this);
+    print('goToPlatform');
+    final Location location = hasLocationService().getLocation(alliance.climbingPlatform, this);
     finished() {
       parkOnPlatform();
       currentLocation = location.origin;
@@ -649,7 +652,8 @@ class Robot implements Persistable {
   }
 
   goToClimb(MouseEvent event) {
-    final Location location = hasLocationService().getLocation(alliance.climbingPlatform, this);
+    print('goToPlatform');
+    final Location location = hasLocationService().getLocation(alliance.climber, this);
     finished() {
       climb();
       currentLocation = location.origin;

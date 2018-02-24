@@ -59,7 +59,7 @@
   width: $climbing-platform-width;
   height: $climbing-platform-height;
   position: absolute;
-  z-index: -1;
+  z-index: 0;
 }
 
 %climber {

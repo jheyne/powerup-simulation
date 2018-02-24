@@ -32,6 +32,7 @@
 .start {
   background-color: green;
   color: white;
+  margin-bottom: 5px;
 }
 
 button-space {
@@ -50,8 +51,8 @@ material-button {
   background-color: coral;
 }
 
-.power-up-levitate {
-  background-color: lightsalmon;
+.power-up-boost {
+  background-color: aquamarine;
 }
 
 .suppress {
@@ -81,4 +82,10 @@ score {
 
 .remainingTime {
   @extend score;
+}
+
+.list {
+  display: grid;
+  grid-template-columns: 300px;
+  grid-gap: 7px;
 }

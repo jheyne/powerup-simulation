@@ -6,7 +6,7 @@
 
 input {
   @extend %cell;
-
+  width: 8em;
 }
 
 span {
@@ -23,6 +23,7 @@ span {
 
 .columnLabel {
   @extend %label;
+  width: 8em;
 }
 
 .rowLabel {

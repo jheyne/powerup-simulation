@@ -91,7 +91,6 @@ class FieldDiagram implements OnInit, AfterViewChecked, up.LocationService {
 
   @override
   up.Location getLocation(up.HasId item, up.Robot robot) {
-    Element parent = querySelector('#field');
     var id = item.id(robot);
     Element element = findElement(id);
     element.classes.add('findme');
@@ -110,7 +109,7 @@ class FieldDiagram implements OnInit, AfterViewChecked, up.LocationService {
 
   /// calculate how long the move should take, move the robot, and disable input until finished
   onRobotMove(up.Robot bot, math.Point start, math.Point end, whenComplete) {
-    print('onRobotMove start $start end $end');
+//    print('onRobotMove start $start end $end');
     final num distance =
         math.sqrt(math.pow(start.x - end.x, 2) + math.pow(start.y - end.y, 2)) *
             DISPLAY_SCALE;

@@ -7,7 +7,7 @@
     </div>
 
     <div id="blue-vault" (click)="robot.putCubeX(robot.alliance.oppositeAlliance.vault, $event)">
-        <div class="centerText">{{robot.alliance.oppositeAlliance.vault.count}}</div>
+        <div class="centerText">{{robot.alliance.oppositeAlliance.vault.availableCubeCount}}</div>
     </div>
 
     <div id="blue-10-source" (click)="robot.getCubeX(robot.alliance.oppositeAlliance.allianceSource, $event)">
@@ -40,7 +40,7 @@
     </div>
 
     <div id="red-vault" (click)="robot.putCubeX(robot.alliance.vault, $event)">
-        <div class="centerText">{{robot.alliance.vault.count}}</div>
+        <div class="centerText">{{robot.alliance.vault.availableCubeCount}}</div>
     </div>
 
     <div id="portal-blue-right" (click)="robot.getCubeX(robot.alliance.oppositeAlliance.portalRight, $event)">

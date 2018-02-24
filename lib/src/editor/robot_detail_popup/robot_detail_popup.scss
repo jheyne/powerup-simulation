@@ -4,6 +4,10 @@ gauge-component {
   padding-top: 12px;
 }
 
+material-tab-panel {
+  min-width: 0.5vw;
+}
+
 #stored-data-box {
   margin-top: 16px;
 }
@@ -55,14 +59,11 @@ hr {
 }
 
 .nestedGauge {
-  padding-left: 2em;
-  padding-right: 2em;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-column-gap: 2em;
 }
 
 .hideMe {
   visibility: hidden;
-}
-
-.width-all {
-  width: 100%;
 }

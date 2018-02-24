@@ -1,8 +1,60 @@
+@import "../../../../web/variables";
+
 .container {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
+  grid-column-gap: 6px;
+}
+
+label {
+  display: inline;
+  font-size: smaller;
+  padding-right: 5px;
+  margin-bottom: 4px;
+  color: $mat-blue-600;
+}
+
+input {
+  display: inline;
+  margin-bottom: 4px;
 }
 
 .list {
-  grid-column-end: span 2;
+  //grid-column-end: span 2;
+}
+
+.links {
+  //grid-column-end: span 2;
+  display: flex;
+  flex-direction: column;
+}
+
+.link {
+  color: $mat-blue-600;
+  cursor: pointer;
+}
+
+.link:hover {
+  text-decoration: underline;
+  text-decoration-style: dotted;
+}
+
+.disabled {
+  display: none;
+}
+
+.heading {
+  font-weight: bold;
+  text-align: center;
+  margin: auto auto;
+  padding-bottom: 6px;
+}
+
+.name {
+  display: flex;
+  flex-direction: row;
+}
+
+.leadingBefore {
+  margin-top: 6px;
 }

@@ -63,8 +63,12 @@ class GameClock {
   bool get isDone => state == State.DONE;
 
   cancel() {
-    _secondTimer.cancel();
     state = State.DONE;
+    if(_secondTimer != null) {
+      _secondTimer.cancel();
+    }
+    currentSecond = 0;
+    state = State.INIT;
   }
 
   startAutonomous() {
@@ -79,7 +83,9 @@ class GameClock {
 
   endGame() => state = State.DONE;
 
-  reset() => state = State.INIT;
+  reset() {
+    cancel();
+  }
 
   bool get isGameActive => isAuton || isTeleop;
 }

@@ -64,6 +64,7 @@ class RobotService {
     robotBlue1 = buildBot(match.blue, Zone.Near)..label = 'Blue 1';
     robotBlue2 = buildBot(match.blue, Zone.Mid)..label = 'Blue 2';
     robotBlue3 = buildBot(match.blue, Zone.Far)..label = 'Blue 3';
+    match.gameClock.reset();
   }
 
   up.Robot buildBot(up.Alliance alliance, Zone zone) {

@@ -1,7 +1,7 @@
 @import "../../../../web/variables";
 
 h1 {
-  font-size: smaller;
+  //font-size: smaller;
 }
 
 p {
@@ -27,4 +27,87 @@ footer {
 .link:hover {
   text-decoration: underline;
   text-decoration-style: dotted;
+}
+
+.quickStart {
+  margin-top: -1em;
+  padding-bottom: 1em;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+}
+
+.takeControl {
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+}
+
+.takeControlText {
+  margin-top: -1em;
+  margin-left: 2em;
+}
+
+.imageGrid {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+}
+
+.middleBox {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.powerup_img {
+  margin-top: 1em;
+  height: 8em;
+  justify-self: end;
+  align-self: end;
+}
+
+.simulationText {
+  margin-top: -1em;
+  justify-self: start;
+  align-self: start;
+}
+
+.first_img {
+  height: 3em;
+  margin-left: 1em;
+}
+
+.calcbox {
+  margin-top: 2em;
+  margin-bottom: 2em;
+  display: flex;
+  flex-direction: column;
+  justify-items: center;
+}
+
+.calcman_img {
+  height: 8em;
+  justify-self: center;
+  transform: rotate(12deg);
+  margin-left: 10px;
+}
+
+.courtesy {
+  font-size: smaller;
+  text-align: center;
+  margin-top: 1px;
+  margin-bottom: 1px;
+}
+
+.strategybox {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+}
+
+.strategies_img {
+  height: 5em;
+  align-self: center;
+  justify-self: center;
+}
+
+.powerupbox {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
 }

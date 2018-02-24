@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:angular/angular.dart';
 import 'package:angular_components/angular_components.dart';
-import 'package:power_up_2018/src/services/index_db_service.dart';
+import 'package:angular_router/angular_router.dart';
 
 import '../cube_operations/cube_operations.dart';
 import '../editor/goal_component/goal_component.dart';
@@ -12,8 +12,8 @@ import '../field_diagram/field_diagram.dart';
 import '../page/main_page_component/main_page_component.dart';
 import '../scoring/autobot.dart';
 import '../scoring/game_clock.dart';
-import '../scoring/goal_spec.dart';
 import '../scoring/model.dart' as up;
+import '../services/dialog_service.dart';
 import '../services/robot_service.dart';
 
 @Component(
@@ -33,40 +33,61 @@ import '../services/robot_service.dart';
   ],
   providers: const [],
 )
-class PowerUpComponent implements OnInit {
+class PowerUpComponent implements OnInit, CanDeactivate {
+  static PowerUpComponent myInstance = null;
+
   final RobotService botz;
+  final DialogService dialogService;
 
   up.Match get match => botz.match;
 
   up.Field get field => botz.field;
 
   up.Robot get robot => botz.robotRed1;
-  IndexDbService _indexDbService;
 
   String get state => match.gameClock.state.toString().split('.').last;
 
   @ViewChild(FieldDiagram)
   FieldDiagram fieldDiagram;
+  bool hasInitialized = false;
 
-  PowerUpComponent(this._indexDbService, this.botz);
+  factory PowerUpComponent(RobotService botz, DialogService dialogService) {
+    if (myInstance == null) {
+      myInstance = new PowerUpComponent._internal(botz, dialogService);
+    }
+    return myInstance;
+  }
+
+  PowerUpComponent._internal(this.botz, this.dialogService);
 
   @override
   Future<Null> ngOnInit() async {
     botz.locationSupplier = () => fieldDiagram;
-    _indexDbService.open();
-    newMatch();
-    robot.alliance.vault.boost.triggered;
+    if (!hasInitialized) {
+      print('Init POWER UP');
+      initializeMatch();
+//      hasInitialized = true;
+    }
   }
 
   newMatch() {
     print('power_up.newMatch');
     fieldDiagram.resetRobots();
     botz.newMatch();
+    initializeMatch();
+  }
+
+  void initializeMatch() {
+    fieldDiagram.resetRobots();
     for (up.Robot robot in botz.robots) {
       fieldDiagram.addRobot(robot);
     }
     fieldDiagram.placeRobots();
     fieldDiagram.initializeScaleAndSwitches();
+  }
+
+  replay() {
+
   }
 
   startAutoBot() {
@@ -98,13 +119,14 @@ class PowerUpComponent implements OnInit {
           break;
       }
     }
+
     print('addStateChangeListener ${autobot.robot.label}');
     autobot.robot.alliance.match.gameClock.addStateChangeListener(listen);
   }
 
   levitate() {
     var v = robot.alliance.vault;
-    v.count = 3;
+    v.levitate.count = 3;
     v.levitate.trigger();
   }
 
@@ -119,4 +141,9 @@ class PowerUpComponent implements OnInit {
     v.force.count = cubesToUse;
     v.force.trigger();
   }
+
+  @override
+  FutureOr<bool> routerCanDeactivate(next, prev) => match.gameClock.isGameActive
+      ? dialogService.confirm('Leaving this page will stop the simulation!')
+      : true as FutureOr<bool>;
 }

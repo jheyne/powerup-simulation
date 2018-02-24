@@ -7,6 +7,7 @@ import 'src/page/main_page_component/main_page_component.dart';
 import 'src/power_up/power_up.dart';
 import 'src/services/index_db_service.dart';
 import 'src/services/robot_service.dart';
+import 'src/services/dialog_service.dart';
 
 @RouteConfig(const [
   const Redirect(path: '/', redirectTo: const ['Home']),
@@ -30,6 +31,6 @@ import 'src/services/robot_service.dart';
     ROUTER_DIRECTIVES,
     CORE_DIRECTIVES
   ],
-  providers: const [materialProviders, IndexDbService, RobotService],
+  providers: const [materialProviders, IndexDbService, RobotService, PowerUpComponent, MainPageComponent, DialogService],
 )
 class AppComponent {}

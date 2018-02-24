@@ -1,0 +1,53 @@
+<div class="card">
+    <material-tab-panel>
+      <material-tab label="Performance">
+        <div>
+          <p class="header">Performance Details
+            <material-icon-tooltip type="info">
+              Edit the the precise performance characteristics of the robot.
+            </material-icon-tooltip>
+          </p>
+          <div class="nestedGauge">
+            <gauge-component
+                    ident="speedBox"
+                    leftLabel="Moves with Low Speed"
+                    rightLabel="High Speed"
+                    [labelFunction]="speedLabelFunction"
+                    [clickFunction]="speedClickFunction"
+                    [percentileFunction]="speedPercentileFunction"
+                    tooltip="Click on the indicator to select the robot's speed and turning performance.
+                You can make more detailed selections using the table below.">
+            </gauge-component>
+
+            <gauge-component
+                    ident="agilityBox"
+                    leftLabel="Not Agile"
+                    rightLabel="Very Agile"
+                    [labelFunction]="agilityLabelFunction"
+                    [clickFunction]="agilityClickFunction"
+                    [percentileFunction]="agilityPercentileFunction"
+                    tooltip="Click on the indicator to select the robot's agility when fetching and placing cubes.
+                You can make more detailed selections using the table below.">
+            </gauge-component>
+          </div>
+          <hr>
+          <robot-detail-component [robot]="robot"></robot-detail-component>
+        </div>
+      </material-tab>
+      <material-tab label="Strategy">
+        <div>
+          <p class="header">Strategies
+            <material-icon-tooltip type="info">
+              Specify the tasks the robot should attempt to execute at specific times during
+              the
+              match.
+            </material-icon-tooltip>
+          </p>
+          <goal-list-component [specs]="robot.goalSpecs"></goal-list-component>
+        </div>
+      </material-tab>
+      <material-tab label="Save and Reuse">
+        <stored-data-component [robot]="robot"></stored-data-component>
+      </material-tab>
+    </material-tab-panel>
+</div>
