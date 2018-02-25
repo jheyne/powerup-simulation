@@ -1,0 +1,70 @@
+$field-width: 823px;
+$field-depth: calc(1646px);
+
+$one-foot-width: 3.70%;
+$vault-width: 14.8%;
+$vault-depth: 5.55%;
+$portal-width: 15%;
+$portal-depth: 5.6%;
+$portal-radius: 45px;
+$auto-line: 29%;
+$exchange-width: 15%;
+$exchange-depth: 9%;
+$null-territory-width: 30%;
+$null-territory-depth: 17.6%;
+$platform-zone-width: 41.2%;
+$platform-zone-depth: 29.3%;
+$power-cube-zone-width: 13.9%;
+$power-cube-zone-depth: 10.3%;
+$line-width: 0.6%;
+$line-depth: 0.5%;
+$scale-plate-width: 11.1%;
+$scale-plate-depth: 11.7%;
+$scale-total-width: 59%;
+$scale-to-station: 46.9%;
+$scale-to-wall: 22.1%;
+$climbing-rung-width: 5.6%;
+$climbing-rung-depth: 1.37%;
+$tower-width: 5.2%;
+$tower-depth: 0.48%;
+$platform-width: 32.1%;
+$platform-depth: 10.1%;
+$switch-center-from-station: 41.2%;
+$switch-to-station: 21.6%;
+$switch-to-wall: 27.8%;
+$switch-width: 44.4%;
+$switch-fence-width: 11.1%;
+$switch-fence-depth: 7.4%;
+$exchange-width: 14.8;
+$scaled-field-width: calc(#{$field-width} / 2);
+$scaled-field-depth: calc(#{$field-depth} / 2);
+$cube-6-source-height: 2%;
+$cube-10-source-width: 12%;
+$cube-10-source-height: 6%;
+$climbing-platform-left: 34.5%;
+$climbing-platform-width: 32%;
+$climbing-platform-height: 6.36%;
+$climber-width: 5.24%;
+$climber-left: 50% - ($climber-width / 2);
+$climber-height: 2%;
+$climber-offset-from-center: 3%;
+
+$color-pending: lightgray;
+
+$mat-blue-50: #e8f0fe;
+$mat-blue-100: #c6dafc;
+$mat-blue-200: #a1c2fa;
+$mat-blue-300: #7baaf7;
+$mat-blue-400: #5e97f6;
+$mat-blue-500: #4285f4;
+$mat-blue-600: #3b78e7;
+$mat-blue-700: #3367d6;
+$mat-blue-800: #2a56c6;
+$mat-blue-900: #1c3aa9;
+
+%border {
+  position: absolute;
+  border-width: 1px;
+  border-style: solid;
+  text-align: center;
+}

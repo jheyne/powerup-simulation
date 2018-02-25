@@ -1,0 +1,40 @@
+@import url(https://fonts.googleapis.com/css?family=Roboto);
+@import url(https://fonts.googleapis.com/css?family=Material+Icons);
+
+body {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding-top: 1vw;
+  padding-bottom: 3vw;
+  padding-left: 5vw;
+  padding-right: 5vw;
+}
+
+* {
+  font-family: Roboto, Helvetica, Arial, sans-serif;
+}
+
+material-button {
+  //background-color: green;
+  //color: white;
+  padding: 0px 4px;
+  margin: 2px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
+
+.findme {
+  background-color: hotpink;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.italic {
+  font-style: italic;
+}
