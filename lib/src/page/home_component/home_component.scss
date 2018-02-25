@@ -110,4 +110,17 @@ footer {
 .powerupbox {
   display: grid;
   grid-template-columns: 1fr 2fr;
+  margin-bottom: 1em;
+}
+
+.persistence_box {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+}
+
+.persistence_img {
+  margin-left: 1em;
+  height: 8.5em;
+  align-self: center;
+  justify-self: center;
 }
